@@ -1,0 +1,1315 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>CIE — Su referencia en logística aduanal</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700;800&family=Source+Serif+4:ital,wght@0,400;0,500;0,600;1,400;1,500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+
+<style>
+  :root {
+    --navy: #1A2A5E;
+    --navy-deep: #11204D;
+    --navy-ink: #0E1838;
+    --red: #D02030;
+    --red-deep: #B21A28;
+    --white: #FFFFFF;
+    --paper: #FFFFFF;
+    --soft: #F6F7FA;
+    --rule: #E5E7EE;
+    --line: #DDE1EA;
+    --muted: #5C6377;
+    --ink-soft: #2A3358;
+    /* Liquid motion timing */
+    --liq-in: 1100ms;
+    --liq-out: 650ms;
+    --liq-ease-in: cubic-bezier(.16,.84,.28,1);
+    --liq-ease-out: cubic-bezier(.7,0,.84,.16);
+    --liq-elastic: cubic-bezier(.34,1.56,.64,1);
+  }
+
+  html, body {
+    margin: 0;
+    padding: 0;
+    background: #0b0e16;
+    font-family: 'Manrope', system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    color: var(--navy-ink);
+    overflow: hidden;
+    overscroll-behavior: none;
+    width: 100%;
+    height: 100%;
+    touch-action: none;
+  }
+  *, *::before, *::after { box-sizing: border-box; }
+
+  /* ============== STAGE / VIEWPORT ============== */
+  .stage {
+    position: fixed; inset: 0;
+    display: flex; align-items: center; justify-content: center;
+    background:
+      radial-gradient(120% 90% at 50% 50%, #1a1f30 0%, #0b0e16 70%);
+    overflow: hidden;
+  }
+  .stage::before, .stage::after {
+    content: ""; position: absolute; pointer-events: none; z-index: 1;
+    background:
+      repeating-linear-gradient(135deg, transparent 0 22px, rgba(255,255,255,0.012) 22px 23px);
+  }
+  .stage::before { inset: 0; }
+
+  .slides-wrap {
+    position: relative;
+    width: 1920px; height: 1080px;
+    transform-origin: center center;
+    will-change: transform;
+  }
+
+  /* ============== SLIDE BASE ============== */
+  .slide {
+    position: absolute; inset: 0;
+    width: 1920px; height: 1080px;
+    background: var(--white);
+    color: var(--navy-ink);
+    overflow: hidden;
+    font-family: 'Manrope', system-ui, sans-serif;
+    opacity: 0;
+    pointer-events: none;
+    visibility: hidden;
+    box-shadow: 0 30px 80px rgba(0,0,0,0.45), 0 0 0 1px rgba(255,255,255,0.04);
+  }
+  .slide.active {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+    z-index: 2;
+  }
+  .slide.prev, .slide.next { z-index: 1; }
+
+  /* Slide reveal mask (liquid wipe of the whole slide) */
+  .slide-mask {
+    position: absolute; inset: 0; z-index: 50;
+    pointer-events: none;
+    background: linear-gradient(120deg, var(--navy) 0%, var(--navy-ink) 45%, var(--red) 100%);
+    clip-path: circle(0% at 50% 50%);
+    transition: clip-path 900ms cubic-bezier(.86,0,.07,1);
+  }
+  .slide.entering .slide-mask {
+    clip-path: circle(150% at 50% 50%);
+    transition: clip-path 0ms;
+  }
+  .slide.active .slide-mask {
+    clip-path: circle(0% at 50% 50%);
+    transition: clip-path 1000ms cubic-bezier(.86,0,.07,1);
+  }
+  .slide.leaving .slide-mask {
+    clip-path: circle(150% at 50% 50%);
+    transition: clip-path 700ms cubic-bezier(.86,0,.07,1);
+  }
+
+  /* ============== CHROME ============== */
+  .accent-bar {
+    position: absolute; top: 0; left: 0; right: 0; height: 6px;
+    display: flex; z-index: 6;
+    overflow: hidden;
+  }
+  .accent-bar > .a-red { background: var(--red); flex: 0 0 25%; }
+  .accent-bar > .a-navy { background: var(--navy); flex: 1; }
+
+  .chrome-top {
+    position: absolute; top: 0; left: 0; right: 0;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 50px 100px 0 100px;
+    z-index: 5;
+  }
+  .chrome-bottom {
+    position: absolute; bottom: 0; left: 0; right: 0;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 100px 44px 100px;
+    z-index: 5;
+  }
+  .brand-mark {
+    display: flex; align-items: center; gap: 16px;
+    font-family: 'Manrope', sans-serif;
+    font-size: 16px; font-weight: 600;
+    letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--navy);
+  }
+  .meta {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 14px; font-weight: 500;
+    letter-spacing: 0.18em; text-transform: uppercase;
+    color: var(--muted);
+  }
+  .eyebrow {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 15px; font-weight: 500;
+    letter-spacing: 0.28em; text-transform: uppercase;
+    color: var(--red);
+    display: flex; align-items: center; gap: 16px;
+  }
+  .eyebrow::before {
+    content: ""; display: inline-block;
+    width: 48px; height: 2px; background: var(--red);
+  }
+  .title {
+    font-family: 'Manrope', sans-serif;
+    font-size: 92px; font-weight: 700;
+    letter-spacing: -0.025em; line-height: 1.02;
+    color: var(--navy);
+    margin: 28px 0 0 0;
+  }
+  .lede {
+    font-size: 28px; font-weight: 400; line-height: 1.5;
+    color: var(--ink-soft);
+    margin: 32px 0 0 0;
+    text-wrap: pretty;
+  }
+  .footer-tag {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px; letter-spacing: 0.22em; text-transform: uppercase;
+    color: var(--muted);
+  }
+  .stripe-row { display: flex; gap: 6px; }
+  .stripe-row .s { height: 6px; }
+  .stripe-row .s-red { background: var(--red); }
+  .stripe-row .s-navy { background: var(--navy); }
+  .stripe-row .s-line { background: var(--line); }
+
+  /* ============== LIQUID MOTION SYSTEM ============== */
+  /* Every animated element starts hidden in its "from" state.
+     When the slide gets .play, after data-delay the element gets .in
+     and transitions to the natural rest state. On .leaving, .out drains it. */
+
+  [data-anim] {
+    --d: 0ms;
+    will-change: transform, opacity, filter, clip-path;
+    transition:
+      transform var(--liq-in) var(--liq-ease-in) var(--d),
+      opacity   var(--liq-in) var(--liq-ease-in) var(--d),
+      filter    var(--liq-in) var(--liq-ease-in) var(--d),
+      clip-path var(--liq-in) var(--liq-ease-in) var(--d);
+  }
+
+  /* From states */
+  [data-anim="liquid-up"]    { opacity: 0; transform: translate3d(0, 90px, 0) scale(.92); filter: blur(18px); }
+  [data-anim="liquid-down"]  { opacity: 0; transform: translate3d(0, -70px, 0) scale(.92); filter: blur(16px); }
+  [data-anim="liquid-left"]  { opacity: 0; transform: translate3d(-120px, 0, 0) scale(.94); filter: blur(14px); }
+  [data-anim="liquid-right"] { opacity: 0; transform: translate3d(120px, 0, 0) scale(.94); filter: blur(14px); }
+  [data-anim="liquid-pop"]   { opacity: 0; transform: scale(.2); filter: blur(28px); }
+  [data-anim="liquid-pour"]  { opacity: 0; transform: translate3d(0, 24px, 0); clip-path: inset(0 100% 0 0); filter: blur(6px); }
+  [data-anim="liquid-pour-r"]{ opacity: 0; transform: translate3d(0, 24px, 0); clip-path: inset(0 0 0 100%); filter: blur(6px); }
+  [data-anim="liquid-reveal"]{ opacity: 0; transform: translate3d(0, 0, 0); clip-path: inset(100% 0 0 0); filter: blur(4px); }
+  [data-anim="liquid-blob"]  { opacity: 0; transform: scale(.55) rotate(-8deg); filter: blur(22px); }
+  [data-anim="liquid-drip"]  { opacity: 0; transform: translate3d(0, -120px, 0) scaleY(.35); transform-origin: top center; filter: blur(12px); }
+  [data-anim="liquid-fade"]  { opacity: 0; filter: blur(10px); }
+  [data-anim="liquid-flow"]  { opacity: 0; transform: translate3d(-40px, 30px, 0) skewX(8deg) scale(.96); filter: blur(12px); }
+  [data-anim="liquid-bar"]   { opacity: 1; transform: scaleX(0); transform-origin: left center; }
+  [data-anim="liquid-bar-r"] { opacity: 1; transform: scaleX(0); transform-origin: right center; }
+  [data-anim="liquid-rise"]  { opacity: 0; transform: translate3d(0, 200px, 0) scale(.85); filter: blur(20px); }
+
+  /* In state (rest) */
+  .slide.play [data-anim].in {
+    opacity: 1;
+    transform: none;
+    filter: blur(0);
+    clip-path: inset(0 0 0 0);
+  }
+  .slide.play [data-anim="liquid-bar"].in,
+  .slide.play [data-anim="liquid-bar-r"].in {
+    transform: scaleX(1);
+  }
+
+  /* Out state: liquid drain on slide leaving */
+  .slide.leaving [data-anim] {
+    transition:
+      transform var(--liq-out) var(--liq-ease-out) var(--d),
+      opacity   var(--liq-out) var(--liq-ease-out) var(--d),
+      filter    var(--liq-out) var(--liq-ease-out) var(--d);
+    opacity: 0;
+    transform: translate3d(0, -40px, 0) scale(.96);
+    filter: blur(14px);
+  }
+  .slide.leaving [data-anim="liquid-bar"],
+  .slide.leaving [data-anim="liquid-bar-r"] {
+    transform: scaleX(0);
+    opacity: 0.5;
+  }
+
+  /* When slide isn't playing, reset to initial */
+  .slide:not(.play):not(.leaving) [data-anim] { transition: none; }
+
+  /* Goo container for cluster liquid merge */
+  .goo { filter: url(#goo-filter); }
+
+  /* ============== PROGRESS NAV ============== */
+  .nav-dots {
+    position: fixed; right: 28px; top: 50%; transform: translateY(-50%);
+    z-index: 20;
+    display: flex; flex-direction: column; gap: 14px;
+    background: rgba(14,24,56,0.55);
+    padding: 18px 12px;
+    border-radius: 30px;
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(255,255,255,0.08);
+  }
+  .nav-dot {
+    width: 10px; height: 10px; border-radius: 50%;
+    background: rgba(255,255,255,0.28);
+    border: none; padding: 0;
+    cursor: pointer;
+    position: relative;
+    transition: all .5s cubic-bezier(.34,1.56,.64,1);
+  }
+  .nav-dot:hover { background: rgba(255,255,255,0.55); transform: scale(1.2); }
+  .nav-dot.active {
+    background: var(--red);
+    width: 10px; height: 38px;
+    border-radius: 6px;
+    box-shadow: 0 0 18px rgba(208,32,48,0.55);
+  }
+  .nav-dot .label {
+    position: absolute; right: 28px; top: 50%; transform: translateY(-50%);
+    background: rgba(14,24,56,0.92);
+    color: #fff;
+    padding: 6px 12px;
+    border-radius: 4px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase;
+    white-space: nowrap;
+    opacity: 0; pointer-events: none;
+    transition: opacity .25s ease;
+  }
+  .nav-dot:hover .label { opacity: 1; }
+
+  /* ============== SCROLL HINT ============== */
+  .scroll-hint {
+    position: fixed; bottom: 28px; left: 50%; transform: translateX(-50%);
+    z-index: 20;
+    display: flex; align-items: center; gap: 14px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px; letter-spacing: 0.28em; text-transform: uppercase;
+    color: rgba(255,255,255,0.65);
+    background: rgba(14,24,56,0.55);
+    padding: 12px 22px;
+    border-radius: 50px;
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(255,255,255,0.08);
+    transition: opacity .6s ease;
+  }
+  .scroll-hint.hide { opacity: 0; pointer-events: none; }
+  .scroll-hint .wheel {
+    width: 18px; height: 26px;
+    border: 1.5px solid currentColor;
+    border-radius: 12px;
+    position: relative;
+  }
+  .scroll-hint .wheel::after {
+    content: ""; position: absolute;
+    width: 3px; height: 6px;
+    background: currentColor;
+    left: 50%; top: 5px; transform: translateX(-50%);
+    border-radius: 2px;
+    animation: scrollHint 1.6s ease-in-out infinite;
+  }
+  @keyframes scrollHint {
+    0%, 100% { transform: translate(-50%, 0); opacity: 1; }
+    50% { transform: translate(-50%, 10px); opacity: 0.4; }
+  }
+
+  /* ============== ROTATE PROMPT ============== */
+  .rotate-prompt {
+    position: fixed; inset: 0;
+    z-index: 999;
+    display: none;
+    align-items: center; justify-content: center;
+    flex-direction: column;
+    background: radial-gradient(circle at 50% 50%, var(--navy) 0%, var(--navy-ink) 100%);
+    color: #fff;
+    text-align: center;
+    padding: 40px;
+  }
+  .rotate-prompt.visible { display: flex; }
+  .rotate-prompt .accent-line {
+    position: absolute; top: 0; left: 0; right: 0; height: 4px;
+    display: flex;
+  }
+  .rotate-prompt .accent-line span:nth-child(1) { flex: 0 0 25%; background: var(--red); }
+  .rotate-prompt .accent-line span:nth-child(2) { flex: 1; background: rgba(255,255,255,0.1); }
+
+  .phone-icon {
+    width: 90px; height: 140px;
+    border: 4px solid #fff;
+    border-radius: 16px;
+    position: relative;
+    margin-bottom: 38px;
+    animation: rotatePhone 2.4s cubic-bezier(.65,.05,.36,1) infinite;
+    transform-origin: center center;
+  }
+  .phone-icon::before {
+    content: ""; position: absolute;
+    width: 30px; height: 4px;
+    background: #fff;
+    border-radius: 2px;
+    top: 10px; left: 50%; transform: translateX(-50%);
+  }
+  .phone-icon::after {
+    content: ""; position: absolute;
+    width: 14px; height: 14px;
+    border: 3px solid #fff;
+    border-radius: 50%;
+    bottom: 10px; left: 50%; transform: translateX(-50%);
+  }
+  @keyframes rotatePhone {
+    0%      { transform: rotate(0deg); }
+    40%     { transform: rotate(0deg); }
+    65%     { transform: rotate(-90deg); }
+    100%    { transform: rotate(-90deg); }
+  }
+  .phone-arc {
+    position: absolute; width: 180px; height: 180px;
+    border: 2px dashed rgba(255,255,255,0.3);
+    border-radius: 50%;
+    border-top-color: transparent;
+    border-right-color: transparent;
+    animation: arcSpin 2.4s ease-in-out infinite;
+  }
+  @keyframes arcSpin {
+    0%,40% { transform: rotate(0deg); opacity: 0.6; }
+    65%,100% { transform: rotate(-90deg); opacity: 0; }
+  }
+
+  .rotate-prompt h2 {
+    font-family: 'Manrope', sans-serif;
+    font-weight: 700; font-size: 28px;
+    letter-spacing: -0.02em; margin: 0 0 12px 0;
+  }
+  .rotate-prompt h2 em {
+    font-family: 'Source Serif 4', serif;
+    font-style: italic; font-weight: 500;
+    color: #ff6b76;
+  }
+  .rotate-prompt p {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px; letter-spacing: 0.28em; text-transform: uppercase;
+    color: rgba(255,255,255,0.6);
+    margin: 0;
+  }
+  .rotate-prompt .brand-row {
+    position: absolute; top: 28px; left: 0; right: 0;
+    display: flex; justify-content: center;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px; letter-spacing: 0.32em; text-transform: uppercase;
+    color: rgba(255,255,255,0.5);
+  }
+
+  /* ============== IMG PLACEHOLDER ============== */
+  .img-ph {
+    position: relative;
+    background: var(--soft);
+    border: 1px dashed #B7BECF;
+    overflow: hidden;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .img-ph::before, .img-ph::after {
+    content: "";
+    position: absolute; inset: 0;
+    background: linear-gradient(135deg, transparent 49.6%, #C9CFDD 49.6%, #C9CFDD 50.4%, transparent 50.4%);
+    opacity: 0.5; pointer-events: none;
+  }
+
+  /* hide nav when transitioning */
+  .stage.locking .nav-dots { pointer-events: none; }
+
+  /* prevent text selection during scroll */
+  .stage { user-select: none; -webkit-user-select: none; }
+
+  /* HUD: slide counter */
+  .slide-counter {
+    position: fixed; left: 28px; top: 28px;
+    z-index: 20;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px; letter-spacing: 0.28em; text-transform: uppercase;
+    color: rgba(255,255,255,0.75);
+    background: rgba(14,24,56,0.55);
+    padding: 10px 16px;
+    border-radius: 50px;
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(255,255,255,0.08);
+    display: flex; gap: 10px; align-items: center;
+  }
+  .slide-counter .num {
+    font-size: 14px; font-weight: 700;
+    color: #fff; letter-spacing: 0.18em;
+  }
+  .slide-counter .dot {
+    width: 4px; height: 4px; background: var(--red);
+    border-radius: 50%;
+  }
+</style>
+</head>
+<body>
+
+<!-- Goo filter for liquid merge effects -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <filter id="goo-filter">
+      <feGaussianBlur in="SourceGraphic" stdDeviation="8" result="blur"/>
+      <feColorMatrix in="blur" mode="matrix" values="
+        1 0 0 0 0
+        0 1 0 0 0
+        0 0 1 0 0
+        0 0 0 18 -9" result="goo"/>
+      <feComposite in="SourceGraphic" in2="goo" operator="atop"/>
+    </filter>
+    <symbol id="cie-mark" viewBox="0 0 100 100">
+      <text x="50" y="48" text-anchor="middle" font-family="Manrope, sans-serif" font-size="34" font-weight="800" letter-spacing="-1" fill="currentColor">CIE</text>
+      <rect x="6" y="56" width="88" height="5" fill="#D02030"/>
+      <rect x="14" y="64" width="72" height="4" fill="currentColor"/>
+    </symbol>
+  </defs>
+</svg>
+
+<!-- Rotate prompt for portrait mobile -->
+<div class="rotate-prompt" id="rotatePrompt">
+  <div class="accent-line"><span></span><span></span></div>
+  <div class="brand-row">CIE · Corporativo Internacional Especializado</div>
+  <div style="position: relative; display: flex; align-items: center; justify-content: center; margin-bottom: 38px;">
+    <div class="phone-arc"></div>
+    <div class="phone-icon"></div>
+  </div>
+  <h2>Gira tu dispositivo a <em>horizontal</em></h2>
+  <p>Para una mejor experiencia</p>
+</div>
+
+<!-- Slide counter HUD -->
+<div class="slide-counter">
+  <span class="dot"></span>
+  <span class="num" id="counterNum">01</span>
+  <span>/</span>
+  <span>07</span>
+</div>
+
+<!-- Nav dots -->
+<div class="nav-dots" id="navDots"></div>
+
+<!-- Scroll hint -->
+<div class="scroll-hint" id="scrollHint">
+  <span class="wheel"></span>
+  <span>Scroll · Swipe · Flechas</span>
+</div>
+
+<!-- ============ STAGE ============ -->
+<div class="stage" id="stage">
+  <div class="slides-wrap" id="slidesWrap">
+
+    <!-- ============ 01 PORTADA ============ -->
+    <section class="slide" data-label="Portada" data-num="01">
+      <div class="slide-mask"></div>
+      <div class="accent-bar"><div class="a-red" data-anim="liquid-bar" data-delay="0"></div><div class="a-navy" data-anim="liquid-bar" data-delay="120"></div></div>
+
+      <div style="position: absolute; top: 50px; left: 100px; right: 100px; display: flex; justify-content: space-between; align-items: center;">
+        <div data-anim="liquid-left" data-delay="200" style="font-family: 'JetBrains Mono', monospace; font-size: 14px; letter-spacing: 0.22em; text-transform: uppercase; color: var(--muted);">
+          Corporativo Internacional Especializado, S.C.
+        </div>
+        <div data-anim="liquid-right" data-delay="200" style="font-family: 'JetBrains Mono', monospace; font-size: 14px; letter-spacing: 0.22em; text-transform: uppercase; color: var(--muted);">
+          Presentación Corporativa · 2026
+        </div>
+      </div>
+
+      <div style="position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 0 100px;">
+        <img data-anim="liquid-pop" data-delay="400" src="assets/logo-cie-original.png" alt="CIE" style="width: 360px; height: auto; margin-bottom: 64px;" onerror="this.replaceWith(Object.assign(document.createElement('div'), {innerHTML: '<svg width=\'360\' height=\'360\'><use href=\'#cie-mark\' style=\'color:%231A2A5E\'/></svg>'}))" />
+
+        <div data-anim="liquid-up" data-delay="700" style="font-family: 'JetBrains Mono', monospace; font-size: 16px; letter-spacing: 0.32em; text-transform: uppercase; color: var(--red); margin-bottom: 32px;">
+          Agencia Aduanal · 35 Años de Experiencia
+        </div>
+
+        <h1 style="font-family: 'Manrope', sans-serif; font-size: 132px; font-weight: 700; letter-spacing: -0.035em; line-height: 1; margin: 0; color: var(--navy); text-align: center;">
+          <span data-anim="liquid-pour" data-delay="850" style="display:inline-block;">Su referencia en</span><br/>
+          <span data-anim="liquid-pour" data-delay="1100" style="display:inline-block; font-family: 'Source Serif 4', serif; font-style: italic; font-weight: 500; color: var(--red);">logística aduanal.</span>
+        </h1>
+
+        <div style="margin-top: 64px; display: flex; gap: 8px;">
+          <div data-anim="liquid-bar" data-delay="1300" style="height: 8px; width: 240px; background: var(--red);"></div>
+          <div data-anim="liquid-bar" data-delay="1400" style="height: 8px; width: 80px; background: var(--navy);"></div>
+          <div data-anim="liquid-bar" data-delay="1500" style="height: 8px; width: 140px; background: var(--red);"></div>
+          <div data-anim="liquid-bar" data-delay="1600" style="height: 8px; width: 40px; background: var(--navy);"></div>
+        </div>
+      </div>
+
+      <div data-anim="liquid-up" data-delay="1500" style="position: absolute; bottom: 56px; left: 100px; right: 100px; display: flex; justify-content: space-between; align-items: center; padding-top: 28px; border-top: 1px solid var(--line);">
+        <div style="font-family: 'JetBrains Mono', monospace; font-size: 14px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--muted);">Manzanillo · Lázaro Cárdenas · Veracruz · CDMX · Guadalajara</div>
+        <div style="font-family: 'JetBrains Mono', monospace; font-size: 14px; letter-spacing: 0.2em; color: var(--muted);">cieagenciaaduanal.com</div>
+      </div>
+    </section>
+
+    <!-- ============ 02 QUIÉNES SOMOS ============ -->
+    <section class="slide" data-label="Quiénes Somos" data-num="02">
+      <div class="slide-mask"></div>
+      <div class="accent-bar"><div class="a-red" data-anim="liquid-bar" data-delay="0"></div><div class="a-navy" data-anim="liquid-bar" data-delay="120"></div></div>
+      <div class="chrome-top">
+        <div class="brand-mark" data-anim="liquid-left" data-delay="200"><img src="assets/logo-cie-original.png" alt="CIE" style="width: 44px; height: 44px; object-fit: contain;"/><span>Corporativo Internacional Especializado</span></div>
+        <div class="meta" data-anim="liquid-right" data-delay="200">02 / 07 · Quiénes Somos</div>
+      </div>
+
+      <div style="position:absolute; inset: 180px 100px 130px 100px; display: flex; flex-direction: column;">
+        <div>
+          <div class="eyebrow" data-anim="liquid-pour" data-delay="350">Quiénes somos</div>
+          <h2 class="title" style="font-size: 78px; margin-top: 20px;">
+            <span data-anim="liquid-pour" data-delay="500" style="display:inline-block;">Un corporativo aduanal con</span><br/>
+            <span data-anim="liquid-pour" data-delay="700" style="display:inline-block; color: var(--red); font-family: 'Source Serif 4', serif; font-style: italic; font-weight: 500;">35 años</span>
+            <span data-anim="liquid-pour" data-delay="850" style="display:inline-block;">de trayectoria.</span>
+          </h2>
+          <div class="lede" data-anim="liquid-up" data-delay="1000" style="margin-top: 28px; font-size: 26px; max-width: 1500px;">
+            Desde cualquier origen del mundo hasta cualquier destino en México. Equipo propio, infraestructura y <em style="font-style: italic; color: var(--red); font-family: 'Source Serif 4', serif;">expertise</em> para simplificar su comercio internacional.
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0; margin-top: 56px; flex: 1; border: 1px solid var(--line);">
+          <div data-anim="liquid-blob" data-delay="1200" style="padding: 56px 56px; display: flex; flex-direction: column; border-right: 1px solid var(--line); position: relative;">
+            <div style="position: absolute; top: 0; left: 0; height: 6px; width: 100%; background: var(--navy);"></div>
+            <div style="display: flex; align-items: center; gap: 16px;">
+              <div style="width: 14px; height: 14px; background: var(--navy);"></div>
+              <div style="font-family: 'JetBrains Mono', monospace; font-size: 16px; letter-spacing: 0.28em; text-transform: uppercase; color: var(--navy);">Visión</div>
+            </div>
+            <div style="font-family: 'Manrope', sans-serif; font-size: 36px; font-weight: 500; line-height: 1.3; letter-spacing: -0.01em; margin-top: 32px; color: var(--navy-ink);">
+              Ser el <em style="font-style: italic; font-family: 'Source Serif 4', serif; color: var(--red); font-weight: 500;">referente nacional</em> en agencia aduanal.
+            </div>
+          </div>
+
+          <div data-anim="liquid-blob" data-delay="1380" style="padding: 56px 56px; display: flex; flex-direction: column; position: relative;">
+            <div style="position: absolute; top: 0; left: 0; height: 6px; width: 100%; background: var(--red);"></div>
+            <div style="display: flex; align-items: center; gap: 16px;">
+              <div style="width: 14px; height: 14px; background: var(--red);"></div>
+              <div style="font-family: 'JetBrains Mono', monospace; font-size: 16px; letter-spacing: 0.28em; text-transform: uppercase; color: var(--red);">Misión</div>
+            </div>
+            <div style="font-family: 'Manrope', sans-serif; font-size: 32px; font-weight: 500; line-height: 1.35; letter-spacing: -0.01em; margin-top: 32px; color: var(--navy-ink);">
+              Soluciones integrales que agilizan la cadena de suministro con rapidez, certeza y cumplimiento.
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="chrome-bottom">
+        <div class="footer-tag" data-anim="liquid-left" data-delay="1500">Su referencia en logística aduanal</div>
+        <div class="footer-tag" data-anim="liquid-right" data-delay="1500">cieagenciaaduanal.com</div>
+      </div>
+    </section>
+
+    <!-- ============ 03 SERVICIOS ============ -->
+    <section class="slide" data-label="Servicios" data-num="03">
+      <div class="slide-mask"></div>
+      <div class="accent-bar"><div class="a-red" data-anim="liquid-bar" data-delay="0"></div><div class="a-navy" data-anim="liquid-bar" data-delay="120"></div></div>
+      <div class="chrome-top">
+        <div class="brand-mark" data-anim="liquid-left" data-delay="200"><img src="assets/logo-cie-original.png" alt="CIE" style="width: 44px; height: 44px; object-fit: contain;"/><span>Corporativo Internacional Especializado</span></div>
+        <div class="meta" data-anim="liquid-right" data-delay="200">03 / 07 · Servicios</div>
+      </div>
+
+      <div style="position:absolute; inset: 180px 100px 130px 100px; display: flex; flex-direction: column;">
+        <div style="display:flex; align-items: flex-end; justify-content: space-between;">
+          <div>
+            <div class="eyebrow" data-anim="liquid-pour" data-delay="300">Portafolio operativo</div>
+            <h2 class="title" data-anim="liquid-pour" data-delay="450" style="font-size: 80px;">Nuestros servicios</h2>
+          </div>
+          <div data-anim="liquid-right" data-delay="600" style="font-family: 'JetBrains Mono', monospace; font-size: 14px; color: var(--muted); letter-spacing: 0.2em;">9 LÍNEAS DE SERVICIO</div>
+        </div>
+
+        <div id="services-grid" style="margin-top: 48px; display: grid; grid-template-columns: repeat(3, 1fr); grid-template-rows: repeat(3, 1fr); gap: 24px; flex: 1; min-height: 0;"></div>
+      </div>
+
+      <div class="chrome-bottom">
+        <div class="footer-tag" data-anim="liquid-left" data-delay="1500">Su referencia en logística aduanal</div>
+        <div class="footer-tag" data-anim="liquid-right" data-delay="1500">cieagenciaaduanal.com</div>
+      </div>
+    </section>
+
+    <!-- ============ 04 SECTORES ============ -->
+    <section class="slide" data-label="Sectores" data-num="04">
+      <div class="slide-mask"></div>
+      <div class="accent-bar"><div class="a-red" data-anim="liquid-bar" data-delay="0"></div><div class="a-navy" data-anim="liquid-bar" data-delay="120"></div></div>
+      <div class="chrome-top">
+        <div class="brand-mark" data-anim="liquid-left" data-delay="200"><img src="assets/logo-cie-original.png" alt="CIE" style="width: 44px; height: 44px; object-fit: contain;"/><span>Corporativo Internacional Especializado</span></div>
+        <div class="meta" data-anim="liquid-right" data-delay="200">04 / 07 · Sectores</div>
+      </div>
+
+      <div style="position: absolute; top: 170px; left: 100px; right: 100px; text-align: center; display: flex; flex-direction: column; align-items: center;">
+        <div class="eyebrow" data-anim="liquid-pour" data-delay="300">35 años en sectores exigentes</div>
+        <h2 class="title" data-anim="liquid-pour" data-delay="450" style="font-size: 64px; text-align: center; margin-top: 14px;">Sectores que atendemos.</h2>
+        <div class="lede" data-anim="liquid-up" data-delay="600" style="margin-top: 12px; max-width: 1100px; text-align: center; font-size: 20px;">
+          Cada sector tiene su normatividad, su estacionalidad y sus aduanas — las dominamos.
+        </div>
+      </div>
+
+      <!-- Ship -->
+      <div id="ship-stage" style="position: absolute; top: 360px; left: 0; right: 0; bottom: 90px; overflow: visible;">
+        <svg viewBox="120 60 1560 520" preserveAspectRatio="xMidYMax meet" style="width: 100%; height: 100%; display: block;">
+          <defs>
+            <linearGradient id="hullGrad2" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#1A2A5E"/>
+              <stop offset="100%" stop-color="#0E1838"/>
+            </linearGradient>
+            <pattern id="corrPattern" width="14" height="70" patternUnits="userSpaceOnUse">
+              <line x1="7" y1="6" x2="7" y2="64" stroke="rgba(255,255,255,0.16)" stroke-width="1"/>
+            </pattern>
+            <symbol id="sector-machinery" viewBox="0 0 40 40">
+              <circle cx="20" cy="20" r="8" fill="none" stroke="currentColor" stroke-width="3"/>
+              <path d="M20 5 V11 M20 29 V35 M5 20 H11 M29 20 H35 M9 9 L13 13 M27 27 L31 31 M31 9 L27 13 M13 27 L9 31" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>
+            </symbol>
+            <symbol id="sector-car" viewBox="0 0 40 40">
+              <path d="M8 24 L12 14 H28 L32 24 Z" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linejoin="round"/>
+              <path d="M7 24 H33 V30 H7 Z" fill="none" stroke="currentColor" stroke-width="2.8"/>
+              <circle cx="14" cy="31" r="3" fill="currentColor"/><circle cx="26" cy="31" r="3" fill="currentColor"/>
+            </symbol>
+            <symbol id="sector-steel" viewBox="0 0 40 40">
+              <path d="M8 11 H32 L29 16 H11 Z M8 20 H32 L29 25 H11 Z M8 29 H32 L29 34 H11 Z" fill="currentColor"/>
+            </symbol>
+            <symbol id="sector-textile" viewBox="0 0 40 40">
+              <path d="M14 8 L20 12 L26 8 L34 14 L30 20 L27 18 V34 H13 V18 L10 20 L6 14 Z" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linejoin="round"/>
+            </symbol>
+            <symbol id="sector-perishable" viewBox="0 0 40 40">
+              <path d="M20 15 C14 9 8 15 10 24 C12 34 18 34 20 30 C22 34 28 34 30 24 C32 15 26 9 20 15 Z" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linejoin="round"/>
+              <path d="M20 13 C21 8 25 6 29 7" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round"/>
+            </symbol>
+            <symbol id="sector-shoe" viewBox="0 0 40 40">
+              <path d="M8 25 C14 25 18 22 21 17 L26 17 C27 22 31 24 35 25 V30 H8 Z" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linejoin="round"/>
+              <path d="M12 30 H35" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round"/>
+            </symbol>
+            <symbol id="sector-toy" viewBox="0 0 40 40">
+              <rect x="8" y="12" width="24" height="20" rx="2" fill="none" stroke="currentColor" stroke-width="2.8"/>
+              <circle cx="15" cy="19" r="2" fill="currentColor"/><circle cx="25" cy="19" r="2" fill="currentColor"/>
+              <path d="M14 26 H26" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round"/>
+            </symbol>
+            <symbol id="sector-grain" viewBox="0 0 40 40">
+              <path d="M20 8 V34" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round"/>
+              <path d="M20 14 C14 12 11 9 10 5 C16 5 19 8 20 14 Z M20 21 C14 19 11 16 10 12 C16 12 19 15 20 21 Z M20 28 C14 26 11 23 10 19 C16 19 19 22 20 28 Z M20 14 C26 12 29 9 30 5 C24 5 21 8 20 14 Z M20 21 C26 19 29 16 30 12 C24 12 21 15 20 21 Z M20 28 C26 26 29 23 30 19 C24 19 21 22 20 28 Z" fill="currentColor"/>
+            </symbol>
+          </defs>
+
+          <!-- Waterline + waves (animate first to show ocean) -->
+          <g class="ship-waves" stroke="rgba(26,42,94,0.55)" stroke-width="1.6" fill="none" stroke-linecap="round">
+            <path d="M 0 480 Q 80 472 160 480 T 320 480 T 480 480 T 640 480 T 800 480 T 960 480 T 1120 480 T 1280 480 T 1440 480 T 1600 480 T 1800 480"/>
+            <path d="M 0 510 Q 100 502 200 510 T 400 510 T 600 510 T 800 510 T 1000 510 T 1200 510 T 1400 510 T 1600 510 T 1800 510" opacity="0.7"/>
+            <path d="M 0 540 Q 80 532 160 540 T 320 540 T 480 540 T 640 540 T 800 540 T 960 540 T 1120 540 T 1280 540 T 1440 540 T 1600 540 T 1800 540" opacity="0.5"/>
+            <path d="M 0 568 Q 120 562 240 568 T 480 568 T 720 568 T 960 568 T 1200 568 T 1440 568 T 1680 568" opacity="0.35"/>
+          </g>
+
+          <!-- Hull -->
+          <g class="ship-hull">
+            <path d="M 160 360 L 1640 360 L 1560 460 L 240 460 Z" fill="url(#hullGrad2)"/>
+            <rect x="180" y="368" width="1440" height="6" fill="#D02030"/>
+            <rect x="1460" y="280" width="120" height="80" fill="#1A2A5E" stroke="#0E1838" stroke-width="1.4"/>
+            <rect x="1476" y="294" width="92" height="14" fill="rgba(255,255,255,0.75)"/>
+            <rect x="1476" y="316" width="92" height="14" fill="rgba(255,255,255,0.5)"/>
+            <rect x="1500" y="240" width="28" height="42" fill="#D02030"/>
+            <rect x="1500" y="232" width="28" height="8" fill="#1A2A5E"/>
+            <path d="M 160 460 L 1640 460 L 1560 500 L 240 500 Z" fill="rgba(26,42,94,0.15)"/>
+          </g>
+
+          <!-- Containers, each animated individually -->
+          <g font-family="Manrope, sans-serif" font-weight="800" font-size="22" fill="#FFFFFF" color="#FFFFFF" text-anchor="middle" letter-spacing="1.4">
+            <g class="ctr" data-ctr="1">
+              <rect x="240" y="290" width="320" height="70" fill="#D02030" stroke="#0E1838" stroke-width="1.6"/>
+              <rect x="240" y="290" width="320" height="70" fill="url(#corrPattern)"/>
+              <rect x="246" y="296" width="6" height="58" fill="rgba(0,0,0,0.28)"/>
+              <rect x="548" y="296" width="6" height="58" fill="rgba(0,0,0,0.28)"/>
+              <rect x="240" y="354" width="320" height="6" fill="rgba(0,0,0,0.3)"/>
+              <use href="#sector-machinery" x="280" y="310" width="34" height="34"/>
+              <text x="430" y="334">MAQUINARIA</text>
+            </g>
+            <g class="ctr" data-ctr="2">
+              <rect x="580" y="290" width="320" height="70" fill="#1A2A5E" stroke="#0E1838" stroke-width="1.6"/>
+              <rect x="580" y="290" width="320" height="70" fill="url(#corrPattern)"/>
+              <rect x="586" y="296" width="6" height="58" fill="rgba(0,0,0,0.28)"/>
+              <rect x="888" y="296" width="6" height="58" fill="rgba(0,0,0,0.28)"/>
+              <rect x="580" y="354" width="320" height="6" fill="rgba(0,0,0,0.3)"/>
+              <use href="#sector-car" x="628" y="310" width="34" height="34"/>
+              <text x="766" y="334">AUTOMOTRIZ</text>
+            </g>
+            <g class="ctr" data-ctr="3">
+              <rect x="920" y="290" width="320" height="70" fill="#D02030" stroke="#0E1838" stroke-width="1.6"/>
+              <rect x="920" y="290" width="320" height="70" fill="url(#corrPattern)"/>
+              <rect x="926" y="296" width="6" height="58" fill="rgba(0,0,0,0.28)"/>
+              <rect x="1228" y="296" width="6" height="58" fill="rgba(0,0,0,0.28)"/>
+              <rect x="920" y="354" width="320" height="6" fill="rgba(0,0,0,0.3)"/>
+              <use href="#sector-steel" x="1005" y="310" width="34" height="34"/>
+              <text x="1102" y="334">ACERO</text>
+            </g>
+            <g class="ctr" data-ctr="4">
+              <rect x="1260" y="290" width="320" height="70" fill="#1A2A5E" stroke="#0E1838" stroke-width="1.6"/>
+              <rect x="1260" y="290" width="320" height="70" fill="url(#corrPattern)"/>
+              <rect x="1266" y="296" width="6" height="58" fill="rgba(0,0,0,0.28)"/>
+              <rect x="1568" y="296" width="6" height="58" fill="rgba(0,0,0,0.28)"/>
+              <rect x="1260" y="354" width="320" height="6" fill="rgba(0,0,0,0.3)"/>
+              <use href="#sector-textile" x="1328" y="310" width="34" height="34"/>
+              <text x="1418" y="334">TEXTIL</text>
+            </g>
+            <g class="ctr" data-ctr="5">
+              <rect x="400" y="220" width="320" height="70" fill="#1A2A5E" stroke="#0E1838" stroke-width="1.6"/>
+              <rect x="400" y="220" width="320" height="70" fill="url(#corrPattern)"/>
+              <rect x="406" y="226" width="6" height="58" fill="rgba(0,0,0,0.28)"/>
+              <rect x="708" y="226" width="6" height="58" fill="rgba(0,0,0,0.28)"/>
+              <rect x="400" y="284" width="320" height="6" fill="rgba(0,0,0,0.3)"/>
+              <use href="#sector-perishable" x="448" y="240" width="34" height="34"/>
+              <text x="588" y="264">PERECEDERO</text>
+            </g>
+            <g class="ctr" data-ctr="6">
+              <rect x="740" y="220" width="320" height="70" fill="#D02030" stroke="#0E1838" stroke-width="1.6"/>
+              <rect x="740" y="220" width="320" height="70" fill="url(#corrPattern)"/>
+              <rect x="746" y="226" width="6" height="58" fill="rgba(0,0,0,0.28)"/>
+              <rect x="1048" y="226" width="6" height="58" fill="rgba(0,0,0,0.28)"/>
+              <rect x="740" y="284" width="320" height="6" fill="rgba(0,0,0,0.3)"/>
+              <use href="#sector-shoe" x="815" y="240" width="34" height="34"/>
+              <text x="926" y="264">CALZADO</text>
+            </g>
+            <g class="ctr" data-ctr="7">
+              <rect x="1080" y="220" width="320" height="70" fill="#1A2A5E" stroke="#0E1838" stroke-width="1.6"/>
+              <rect x="1080" y="220" width="320" height="70" fill="url(#corrPattern)"/>
+              <rect x="1086" y="226" width="6" height="58" fill="rgba(0,0,0,0.28)"/>
+              <rect x="1388" y="226" width="6" height="58" fill="rgba(0,0,0,0.28)"/>
+              <rect x="1080" y="284" width="320" height="6" fill="rgba(0,0,0,0.3)"/>
+              <use href="#sector-toy" x="1148" y="240" width="34" height="34"/>
+              <text x="1266" y="264">JUGUETES</text>
+            </g>
+            <g class="ctr" data-ctr="8">
+              <rect x="740" y="150" width="320" height="70" fill="#D02030" stroke="#0E1838" stroke-width="1.6"/>
+              <rect x="740" y="150" width="320" height="70" fill="url(#corrPattern)"/>
+              <rect x="746" y="156" width="6" height="58" fill="rgba(0,0,0,0.28)"/>
+              <rect x="1048" y="156" width="6" height="58" fill="rgba(0,0,0,0.28)"/>
+              <rect x="740" y="214" width="320" height="6" fill="rgba(0,0,0,0.3)"/>
+              <use href="#sector-grain" x="820" y="170" width="34" height="34"/>
+              <text x="922" y="194">GRANEL</text>
+            </g>
+          </g>
+
+          <!-- CIE placard -->
+          <g class="ship-placard">
+            <rect x="800" y="106" width="200" height="44" fill="#FFFFFF" stroke="#0E1838" stroke-width="1.6"/>
+            <rect x="800" y="146" width="200" height="4" fill="#D02030"/>
+            <text x="900" y="138" text-anchor="middle" font-family="Manrope, sans-serif" font-weight="800" font-size="26" fill="#1A2A5E" letter-spacing="6">CIE</text>
+          </g>
+        </svg>
+      </div>
+
+      <div class="chrome-bottom">
+        <div class="footer-tag" data-anim="liquid-left" data-delay="1900">Su referencia en logística aduanal</div>
+        <div class="footer-tag" data-anim="liquid-right" data-delay="1900">cieagenciaaduanal.com</div>
+      </div>
+    </section>
+
+    <!-- ============ 05 POR QUÉ ELEGIRNOS ============ -->
+    <section class="slide" data-label="¿Por qué elegirnos?" data-num="05">
+      <div class="slide-mask"></div>
+      <div class="accent-bar"><div class="a-red" data-anim="liquid-bar" data-delay="0"></div><div class="a-navy" data-anim="liquid-bar" data-delay="120"></div></div>
+      <div class="chrome-top">
+        <div class="brand-mark" data-anim="liquid-left" data-delay="200"><img src="assets/logo-cie-original.png" alt="CIE" style="width: 44px; height: 44px; object-fit: contain;"/><span>Corporativo Internacional Especializado</span></div>
+        <div class="meta" data-anim="liquid-right" data-delay="200">05 / 07 · ¿Por qué elegirnos?</div>
+      </div>
+
+      <div style="position:absolute; inset: 180px 100px 130px 100px; display: flex; flex-direction: column;">
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 90px; align-items: end;">
+          <div>
+            <div class="eyebrow" data-anim="liquid-pour" data-delay="300">Diferenciadores</div>
+            <h2 class="title" style="font-size: 96px; line-height: 0.95;">
+              <span data-anim="liquid-pour" data-delay="450" style="display:inline-block;">¿Por qué</span><br/>
+              <span data-anim="liquid-pour" data-delay="650" style="display:inline-block; font-family: 'Source Serif 4', serif; font-style: italic; font-weight: 500; color: var(--red);">elegirnos</span><span data-anim="liquid-pour" data-delay="850" style="display:inline-block;">?</span>
+            </h2>
+          </div>
+          <div class="lede" data-anim="liquid-up" data-delay="700" style="margin: 0; font-size: 32px; font-weight: 500; color: var(--navy-ink); line-height: 1.3;">
+            Elegir CIE es elegir <em style="font-style: italic; font-family: 'Source Serif 4', serif; color: var(--red); font-weight: 500;">garantía de excelencia.</em>
+          </div>
+        </div>
+
+        <div style="margin-top: 60px; display: grid; grid-template-columns: repeat(3, 1fr); grid-template-rows: repeat(2, 1fr); gap: 0; flex: 1; border: 1px solid var(--line);">
+          <div data-anim="liquid-blob" data-delay="950" style="background: var(--navy); color: white; padding: 44px 40px; display: flex; flex-direction: column; justify-content: space-between; position: relative; border-right: 1px solid rgba(255,255,255,0.15); border-bottom: 1px solid rgba(255,255,255,0.15);">
+            <div style="position: absolute; top: 0; left: 0; height: 5px; width: 100%; background: var(--red);"></div>
+            <div style="font-family: 'JetBrains Mono', monospace; font-size: 13px; color: #FFB7BE; letter-spacing: 0.22em; text-transform: uppercase;">01 · Certificación</div>
+            <div>
+              <div style="font-family: 'Manrope'; font-size: 44px; font-weight: 700; letter-spacing: -0.02em; line-height: 1;">ISO 9001:2015</div>
+              <div style="font-size: 17px; color: rgba(255,255,255,0.75); margin-top: 14px; line-height: 1.45;">Sistema de Gestión de Calidad. Procesos auditados, mejora continua.</div>
+            </div>
+          </div>
+          <div data-anim="liquid-blob" data-delay="1080" style="background: var(--red); color: white; padding: 44px 40px; display: flex; flex-direction: column; justify-content: space-between; position: relative; border-right: 1px solid rgba(255,255,255,0.15); border-bottom: 1px solid rgba(255,255,255,0.15);">
+            <div style="font-family: 'JetBrains Mono', monospace; font-size: 13px; color: rgba(255,255,255,0.85); letter-spacing: 0.22em; text-transform: uppercase;">02 · Infraestructura</div>
+            <div>
+              <div style="font-family: 'Manrope'; font-size: 36px; font-weight: 700; letter-spacing: -0.01em; line-height: 1.05;">Flota y maniobras propias.</div>
+              <div style="font-size: 17px; color: rgba(255,255,255,0.92); margin-top: 14px; line-height: 1.45;">Sin intermediarios. Bodegas estratégicas para mercancía en tránsito.</div>
+            </div>
+          </div>
+          <div data-anim="liquid-blob" data-delay="1210" style="padding: 44px 40px; display: flex; flex-direction: column; justify-content: space-between; position: relative; border-bottom: 1px solid var(--line);">
+            <div style="position: absolute; top: 0; left: 0; height: 5px; width: 100%; background: var(--navy);"></div>
+            <div style="font-family: 'JetBrains Mono', monospace; font-size: 13px; color: var(--red); letter-spacing: 0.22em; text-transform: uppercase;">03 · Cobertura</div>
+            <div>
+              <div style="font-family: 'Manrope'; font-size: 36px; font-weight: 700; letter-spacing: -0.01em; line-height: 1.05; color: var(--navy);">5 sedes nacionales.</div>
+              <div style="font-size: 17px; color: var(--muted); margin-top: 14px; line-height: 1.45;">Presencia en los principales puertos y aduanas de México.</div>
+            </div>
+          </div>
+          <div data-anim="liquid-blob" data-delay="1340" style="padding: 44px 40px; display: flex; flex-direction: column; justify-content: space-between; position: relative; border-right: 1px solid var(--line);">
+            <div style="position: absolute; top: 0; left: 0; height: 5px; width: 100%; background: var(--red);"></div>
+            <div style="font-family: 'JetBrains Mono', monospace; font-size: 13px; color: var(--red); letter-spacing: 0.22em; text-transform: uppercase;">04 · Experiencia</div>
+            <div>
+              <div style="font-family: 'Manrope'; font-size: 56px; font-weight: 700; letter-spacing: -0.03em; line-height: 1; color: var(--navy);">35 años</div>
+              <div style="font-size: 17px; color: var(--muted); margin-top: 14px; line-height: 1.45;">Operaciones complejas en los puertos y aduanas más exigentes del país.</div>
+            </div>
+          </div>
+          <div data-anim="liquid-blob" data-delay="1470" style="padding: 44px 40px; display: flex; flex-direction: column; justify-content: space-between; position: relative; border-right: 1px solid var(--line);">
+            <div style="position: absolute; top: 0; left: 0; height: 5px; width: 100%; background: var(--navy);"></div>
+            <div style="font-family: 'JetBrains Mono', monospace; font-size: 13px; color: var(--red); letter-spacing: 0.22em; text-transform: uppercase;">05 · Personal</div>
+            <div>
+              <div style="font-family: 'Manrope'; font-size: 36px; font-weight: 700; letter-spacing: -0.01em; line-height: 1.05; color: var(--navy);">Personal experto.</div>
+              <div style="font-size: 17px; color: var(--muted); margin-top: 14px; line-height: 1.45;">Capacitación continua y apego estricto al marco legal aduanero.</div>
+            </div>
+          </div>
+          <div data-anim="liquid-blob" data-delay="1600" style="padding: 44px 40px; display: flex; flex-direction: column; justify-content: space-between; position: relative;">
+            <div style="position: absolute; top: 0; left: 0; height: 5px; width: 100%; background: var(--red);"></div>
+            <div style="font-family: 'JetBrains Mono', monospace; font-size: 13px; color: var(--red); letter-spacing: 0.22em; text-transform: uppercase;">06 · Asesoría</div>
+            <div>
+              <div style="font-family: 'Manrope'; font-size: 36px; font-weight: 700; letter-spacing: -0.01em; line-height: 1.05; color: var(--navy);">Acompañamiento real.</div>
+              <div style="font-size: 17px; color: var(--muted); margin-top: 14px; line-height: 1.45;">Antes, durante y después de cada operación. Somos parte de su equipo.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="chrome-bottom">
+        <div class="footer-tag" data-anim="liquid-left" data-delay="1750">Su referencia en logística aduanal</div>
+        <div class="footer-tag" data-anim="liquid-right" data-delay="1750">cieagenciaaduanal.com</div>
+      </div>
+    </section>
+
+    <!-- ============ 06 COBERTURA NACIONAL ============ -->
+    <section class="slide" data-label="Cobertura nacional" data-num="06">
+      <div class="slide-mask"></div>
+      <div class="accent-bar"><div class="a-red" data-anim="liquid-bar" data-delay="0"></div><div class="a-navy" data-anim="liquid-bar" data-delay="120"></div></div>
+      <div class="chrome-top">
+        <div class="brand-mark" data-anim="liquid-left" data-delay="200"><img src="assets/logo-cie-original.png" alt="CIE" style="width: 44px; height: 44px; object-fit: contain;"/><span>Corporativo Internacional Especializado</span></div>
+        <div class="meta" data-anim="liquid-right" data-delay="200">06 / 07 · Cobertura nacional</div>
+      </div>
+
+      <div style="position:absolute; inset: 165px 100px 120px 100px; display: flex; flex-direction: column;">
+        <div style="display: flex; align-items: flex-end; justify-content: space-between; gap: 48px;">
+          <div>
+            <div class="eyebrow" data-anim="liquid-pour" data-delay="300">Cobertura nacional</div>
+            <h2 class="title" data-anim="liquid-pour" data-delay="450" style="font-size: 76px;">Estamos donde su carga lo necesita.</h2>
+          </div>
+          <div data-anim="liquid-right" data-delay="600" style="font-family: 'JetBrains Mono', monospace; font-size: 13px; letter-spacing: 0.24em; text-transform: uppercase; color: var(--muted); padding-bottom: 12px;">México · 5 sedes operativas</div>
+        </div>
+
+        <div style="margin-top: 26px; flex: 1; min-height: 0; background: var(--soft); border: 1px solid var(--line); position: relative; display: flex; align-items: center; justify-content: center; overflow: hidden;">
+          <div data-anim="liquid-bar" data-delay="800" style="position: absolute; top: 0; left: 0; right: 0; height: 5px; background: var(--red); z-index: 2;"></div>
+          <img data-anim="liquid-pop" data-delay="900" src="assets/mapa-mexico.png" alt="Mapa de México · cobertura CIE" style="width: 100%; height: 100%; object-fit: contain; padding: 28px 60px 92px 60px; mix-blend-mode: multiply;"/>
+          <div style="position: absolute; left: 30px; right: 30px; bottom: 28px; display: grid; grid-template-columns: repeat(5, 1fr); gap: 14px;">
+            <div data-anim="liquid-drip" data-delay="1300" style="background: rgba(255,255,255,0.9); padding: 16px 14px; border-top: 4px solid var(--red); box-shadow: 0 8px 20px rgba(14,24,56,0.06);">
+              <div style="font-size: 18px; font-weight: 800; color: var(--navy); letter-spacing: -0.01em;">Manzanillo</div>
+              <div style="font-size: 10px; color: var(--muted); margin-top: 5px; font-family: 'JetBrains Mono', monospace; letter-spacing: 0.12em;">SEDE PRINCIPAL</div>
+            </div>
+            <div data-anim="liquid-drip" data-delay="1430" style="background: rgba(255,255,255,0.9); padding: 16px 14px; border-top: 4px solid var(--navy); box-shadow: 0 8px 20px rgba(14,24,56,0.06);">
+              <div style="font-size: 18px; font-weight: 800; color: var(--navy); letter-spacing: -0.01em;">L. Cárdenas</div>
+              <div style="font-size: 10px; color: var(--muted); margin-top: 5px; font-family: 'JetBrains Mono', monospace; letter-spacing: 0.12em;">PORTUARIA</div>
+            </div>
+            <div data-anim="liquid-drip" data-delay="1560" style="background: rgba(255,255,255,0.9); padding: 16px 14px; border-top: 4px solid var(--navy); box-shadow: 0 8px 20px rgba(14,24,56,0.06);">
+              <div style="font-size: 18px; font-weight: 800; color: var(--navy); letter-spacing: -0.01em;">Veracruz</div>
+              <div style="font-size: 10px; color: var(--muted); margin-top: 5px; font-family: 'JetBrains Mono', monospace; letter-spacing: 0.12em;">GOLFO</div>
+            </div>
+            <div data-anim="liquid-drip" data-delay="1690" style="background: rgba(255,255,255,0.9); padding: 16px 14px; border-top: 4px solid var(--navy); box-shadow: 0 8px 20px rgba(14,24,56,0.06);">
+              <div style="font-size: 18px; font-weight: 800; color: var(--navy); letter-spacing: -0.01em;">CDMX</div>
+              <div style="font-size: 10px; color: var(--muted); margin-top: 5px; font-family: 'JetBrains Mono', monospace; letter-spacing: 0.12em;">CORPORATIVO · AÉREAS</div>
+            </div>
+            <div data-anim="liquid-drip" data-delay="1820" style="background: rgba(255,255,255,0.9); padding: 16px 14px; border-top: 4px solid var(--navy); box-shadow: 0 8px 20px rgba(14,24,56,0.06);">
+              <div style="font-size: 18px; font-weight: 800; color: var(--navy); letter-spacing: -0.01em;">Guadalajara</div>
+              <div style="font-size: 10px; color: var(--muted); margin-top: 5px; font-family: 'JetBrains Mono', monospace; letter-spacing: 0.12em;">AÉREAS</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="chrome-bottom">
+        <div class="footer-tag" data-anim="liquid-left" data-delay="2000">© 2026 CIE — Documento Confidencial</div>
+        <div class="footer-tag" data-anim="liquid-right" data-delay="2000">cieagenciaaduanal.com</div>
+      </div>
+    </section>
+
+    <!-- ============ 07 CIERRE ============ -->
+    <section class="slide" data-label="Contacto" data-num="07">
+      <div class="slide-mask"></div>
+      <div class="accent-bar"><div class="a-red" data-anim="liquid-bar" data-delay="0"></div><div class="a-navy" data-anim="liquid-bar" data-delay="120"></div></div>
+      <div class="chrome-top">
+        <div class="brand-mark" data-anim="liquid-left" data-delay="200"><img src="assets/logo-cie-original.png" alt="CIE" style="width: 44px; height: 44px; object-fit: contain;"/><span>Corporativo Internacional Especializado</span></div>
+        <div class="meta" data-anim="liquid-right" data-delay="200">07 / 07 · Cierre</div>
+      </div>
+
+      <div style="position: absolute; inset: 170px 100px 130px 100px; display: grid; grid-template-columns: 1.05fr 0.95fr; gap: 86px; align-items: center;">
+        <div style="position: relative; padding: 34px 0 42px 0;">
+          <div class="eyebrow" data-anim="liquid-pour" data-delay="300">Gracias por su atención</div>
+          <h2 class="title" style="font-size: 108px; line-height: 0.98; max-width: 1000px;">
+            <span data-anim="liquid-pour" data-delay="500" style="display:inline-block;">Sigamos moviendo</span><br/>
+            <span data-anim="liquid-pour" data-delay="700" style="display:inline-block;">su operación con</span><br/>
+            <span data-anim="liquid-pour" data-delay="900" style="display:inline-block; font-family: 'Source Serif 4', serif; font-style: italic; font-weight: 500; color: var(--red);">precisión aduanal.</span>
+          </h2>
+          <div class="lede" data-anim="liquid-up" data-delay="1100" style="font-size: 28px; max-width: 900px; margin-top: 34px;">
+            CIE integra experiencia, cobertura e infraestructura para acompañar sus operaciones de comercio exterior con claridad y seguimiento puntual.
+          </div>
+          <div style="margin-top: 54px; width: 560px;" class="stripe-row">
+            <div class="s s-red" data-anim="liquid-bar" data-delay="1280" style="flex: 0 0 44%;"></div>
+            <div class="s s-navy" data-anim="liquid-bar" data-delay="1380" style="flex: 0 0 18%;"></div>
+            <div class="s s-line" data-anim="liquid-bar" data-delay="1480" style="flex: 1;"></div>
+          </div>
+        </div>
+
+        <div data-anim="liquid-right" data-delay="600" style="border-top: 3px solid var(--navy); border-bottom: 1px solid var(--line); padding: 42px 0 34px 0; display: flex; flex-direction: column; gap: 28px;">
+          <div data-anim="liquid-up" data-delay="800" style="display: flex; align-items: center; justify-content: space-between; gap: 48px; padding-bottom: 30px; border-bottom: 1px solid var(--line);">
+            <img src="assets/logo-cie-original.png" alt="CIE" style="width: 210px; height: auto;" onerror="this.style.display='none'" />
+            <div style="font-family: 'Source Serif 4', serif; font-style: italic; font-weight: 500; font-size: 34px; line-height: 1.18; color: var(--red); text-align: right;">
+              Su referencia en<br/>logística aduanal.
+            </div>
+          </div>
+
+          <div data-anim="liquid-up" data-delay="950" style="display: grid; grid-template-columns: 46px 1fr; gap: 24px; align-items: start;">
+            <svg width="38" height="38" viewBox="0 0 40 40" fill="none" stroke="currentColor" stroke-width="1.6" style="color: var(--red);"><rect x="4" y="10" width="32" height="22"/><path d="M4 12 L20 24 L36 12"/></svg>
+            <div>
+              <div style="font-family: 'JetBrains Mono', monospace; font-size: 12px; letter-spacing: 0.22em; text-transform: uppercase; color: var(--muted);">Correo</div>
+              <div style="font-size: 25px; font-weight: 700; color: var(--navy); margin-top: 8px; line-height: 1.2; word-break: break-all;">Comercializacion@cieagenciaaduanal.com</div>
+            </div>
+          </div>
+
+          <div data-anim="liquid-up" data-delay="1080" style="display: grid; grid-template-columns: 46px 1fr; gap: 24px; align-items: start;">
+            <svg width="38" height="38" viewBox="0 0 40 40" fill="none" stroke="currentColor" stroke-width="1.6" style="color: var(--red);"><path d="M8 8 L16 8 L18 18 L14 22 C16 28 22 32 28 34 L32 30 L40 32 L40 38"/></svg>
+            <div>
+              <div style="font-family: 'JetBrains Mono', monospace; font-size: 12px; letter-spacing: 0.22em; text-transform: uppercase; color: var(--muted);">Teléfono</div>
+              <div style="font-size: 30px; font-weight: 800; color: var(--navy); margin-top: 8px; line-height: 1;">+52 314 146 1837</div>
+            </div>
+          </div>
+
+          <div data-anim="liquid-up" data-delay="1210" style="display: grid; grid-template-columns: 46px 1fr; gap: 24px; align-items: start;">
+            <svg width="38" height="38" viewBox="0 0 40 40" fill="none" stroke="currentColor" stroke-width="1.6" style="color: var(--red);"><circle cx="20" cy="20" r="14"/><ellipse cx="20" cy="20" rx="6" ry="14"/><path d="M6 20 H34"/></svg>
+            <div>
+              <div style="font-family: 'JetBrains Mono', monospace; font-size: 12px; letter-spacing: 0.22em; text-transform: uppercase; color: var(--muted);">Sitio web</div>
+              <div style="font-size: 28px; font-weight: 700; color: var(--navy); margin-top: 8px; line-height: 1;">www.cieagenciaaduanal.com</div>
+            </div>
+          </div>
+
+          <div data-anim="liquid-up" data-delay="1340" style="display: grid; grid-template-columns: 46px 1fr; gap: 24px; align-items: start;">
+            <svg width="38" height="38" viewBox="0 0 40 40" fill="none" stroke="currentColor" stroke-width="1.6" style="color: var(--red);"><path d="M20 4 C12 4 6 10 6 18 C6 28 20 38 20 38 C20 38 34 28 34 18 C34 10 28 4 20 4 Z"/><circle cx="20" cy="18" r="5"/></svg>
+            <div>
+              <div style="font-family: 'JetBrains Mono', monospace; font-size: 12px; letter-spacing: 0.22em; text-transform: uppercase; color: var(--muted);">Oficina principal</div>
+              <div style="font-size: 19px; font-weight: 600; color: var(--navy); margin-top: 8px; line-height: 1.35;">Boulevard Miguel de la Madrid Hurtado 962, Local 1<br/>Colonia del Mar, Salagua<br/>Manzanillo, Colima · C.P. 28218</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="chrome-bottom">
+        <div class="footer-tag" data-anim="liquid-left" data-delay="1500">© 2026 CIE — Documento Confidencial</div>
+        <div class="footer-tag" data-anim="liquid-right" data-delay="1500">cieagenciaaduanal.com</div>
+      </div>
+    </section>
+
+  </div>
+</div>
+
+<!-- Per-slide ship liquid motion styles (only loaded once) -->
+<style>
+  /* SHIP scene liquid animations (slide 04) */
+  .slide[data-num="04"] .ship-waves path {
+    opacity: 0;
+    transform: translateY(40px);
+    transition: opacity 900ms var(--liq-ease-in), transform 900ms var(--liq-ease-in);
+  }
+  .slide[data-num="04"].play .ship-waves path { opacity: var(--wave-op, 1); transform: translateY(0); }
+  .slide[data-num="04"].play .ship-waves path:nth-child(1) { transition-delay: 700ms; }
+  .slide[data-num="04"].play .ship-waves path:nth-child(2) { transition-delay: 800ms; --wave-op: 0.7; }
+  .slide[data-num="04"].play .ship-waves path:nth-child(3) { transition-delay: 900ms; --wave-op: 0.5; }
+  .slide[data-num="04"].play .ship-waves path:nth-child(4) { transition-delay: 1000ms; --wave-op: 0.35; }
+
+  .slide[data-num="04"] .ship-hull {
+    opacity: 0;
+    transform: translateY(80px) scale(.96);
+    transform-origin: center 460px;
+    transform-box: fill-box;
+    transition: opacity 1000ms var(--liq-ease-in) 1100ms, transform 1100ms var(--liq-elastic) 1100ms;
+  }
+  .slide[data-num="04"].play .ship-hull { opacity: 1; transform: translateY(0) scale(1); }
+
+  .slide[data-num="04"] .ctr {
+    opacity: 0;
+    transform: translateY(-180px) scale(.5);
+    transform-box: fill-box;
+    transform-origin: center;
+    filter: blur(8px);
+    transition: opacity 700ms var(--liq-ease-in), transform 900ms var(--liq-elastic), filter 700ms var(--liq-ease-in);
+  }
+  .slide[data-num="04"].play .ctr { opacity: 1; transform: translateY(0) scale(1); filter: blur(0); }
+  .slide[data-num="04"].play .ctr[data-ctr="1"] { transition-delay: 1500ms; }
+  .slide[data-num="04"].play .ctr[data-ctr="2"] { transition-delay: 1600ms; }
+  .slide[data-num="04"].play .ctr[data-ctr="3"] { transition-delay: 1700ms; }
+  .slide[data-num="04"].play .ctr[data-ctr="4"] { transition-delay: 1800ms; }
+  .slide[data-num="04"].play .ctr[data-ctr="5"] { transition-delay: 1950ms; }
+  .slide[data-num="04"].play .ctr[data-ctr="6"] { transition-delay: 2050ms; }
+  .slide[data-num="04"].play .ctr[data-ctr="7"] { transition-delay: 2150ms; }
+  .slide[data-num="04"].play .ctr[data-ctr="8"] { transition-delay: 2300ms; }
+
+  .slide[data-num="04"] .ship-placard {
+    opacity: 0;
+    transform: translateY(-40px) scale(.7);
+    transform-box: fill-box;
+    transform-origin: center;
+    transition: opacity 700ms var(--liq-ease-in) 2500ms, transform 800ms var(--liq-elastic) 2500ms;
+  }
+  .slide[data-num="04"].play .ship-placard { opacity: 1; transform: translateY(0) scale(1); }
+
+  /* On leaving slide 04, everything drains down */
+  .slide[data-num="04"].leaving .ctr,
+  .slide[data-num="04"].leaving .ship-hull,
+  .slide[data-num="04"].leaving .ship-placard {
+    opacity: 0;
+    transform: translateY(40px) scale(.92);
+    filter: blur(10px);
+    transition: opacity 500ms, transform 500ms, filter 500ms;
+  }
+  .slide[data-num="04"].leaving .ship-waves path {
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 400ms, transform 400ms;
+  }
+
+  /* Services grid item anim */
+  .svc-card {
+    opacity: 0;
+    transform: translateY(60px) scale(.85) rotate(-4deg);
+    filter: blur(16px);
+    transition: opacity 800ms var(--liq-ease-in), transform 900ms var(--liq-elastic), filter 800ms var(--liq-ease-in);
+  }
+  .slide[data-num="03"].play .svc-card { opacity: 1; transform: translateY(0) scale(1) rotate(0); filter: blur(0); }
+  .slide[data-num="03"].leaving .svc-card {
+    opacity: 0;
+    transform: translateY(-30px) scale(.95);
+    filter: blur(10px);
+    transition: opacity 450ms, transform 450ms, filter 450ms;
+  }
+</style>
+
+<script>
+  // ============== SERVICES GRID (preserved from original) ==============
+  const services = [
+    { num: '01', title: 'Importación', desc: 'Despachos ágiles con ejecutivos especializados.', accent: 'navy', icon:
+      `<svg viewBox="0 0 60 60" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 42 L52 42 L48 50 L12 50 Z"/><path d="M14 42 V28 H46 V42"/><rect x="20" y="32" width="8" height="6"/><rect x="32" y="32" width="8" height="6"/><path d="M30 14 V28 M24 20 L30 14 L36 20"/><path d="M4 42 Q12 38 20 42 T36 42 T52 42"/></svg>` },
+    { num: '02', title: 'Exportación', desc: 'Pre B/L, Anexos 29 e internación de mercancía.', accent: 'red', icon:
+      `<svg viewBox="0 0 60 60" fill="currentColor"><path d="M52 22 L34 18 L26 8 L22 8 L26 20 L14 22 L10 18 L7 19 L11 27 L7 35 L10 36 L14 32 L26 34 L22 46 L26 46 L34 36 L52 32 C54 31 54 23 52 22 Z"/></svg>` },
+    { num: '03', title: 'Logística y Transporte', desc: 'Flota propia, door to door y fletes marítimos internacionales.', accent: 'navy', icon:
+      `<svg viewBox="0 0 60 60" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="22" width="28" height="20"/><path d="M34 28 H46 L52 34 V42 H34 Z"/><line x1="12" y1="28" x2="28" y2="28"/><line x1="12" y1="34" x2="28" y2="34"/><circle cx="16" cy="46" r="4" fill="currentColor"/><circle cx="44" cy="46" r="4" fill="currentColor"/></svg>` },
+    { num: '04', title: 'Maniobras', desc: 'Consolidación y desconsolidación con infraestructura propia.', accent: 'red', icon:
+      `<svg viewBox="0 0 60 60" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 50 V10 L40 10"/><path d="M10 18 L40 18"/><path d="M16 18 V36"/><rect x="14" y="36" width="32" height="14"/><line x1="22" y1="36" x2="22" y2="50"/><line x1="30" y1="36" x2="30" y2="50"/><line x1="38" y1="36" x2="38" y2="50"/></svg>` },
+    { num: '05', title: 'Asesoría arancelaria', desc: 'Clasificación precisa para proteger su operación.', accent: 'navy', icon:
+      `<svg viewBox="0 0 60 60" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="8" y="10" width="44" height="40" rx="2"/><rect x="16" y="32" width="6" height="12" fill="currentColor"/><rect x="27" y="24" width="6" height="20" fill="currentColor"/><rect x="38" y="18" width="6" height="26" fill="currentColor"/></svg>` },
+    { num: '06', title: 'Asesoría jurídica', desc: 'Respaldo legal pre y post despacho, hasta resolución absolutoria.', accent: 'red', icon:
+      `<svg viewBox="0 0 60 60" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M30 8 V52"/><path d="M22 52 H38"/><path d="M14 16 H46"/><circle cx="30" cy="13" r="3" fill="currentColor"/><path d="M14 16 L8 32 H20 Z"/><path d="M46 16 L40 32 H52 Z"/></svg>` },
+    { num: '07', title: 'Previo en origen', desc: 'Inspección en Asia antes del zarpe. Sin sorpresas.', accent: 'navy', icon:
+      `<svg viewBox="0 0 60 60" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="30" cy="30" r="22"/><ellipse cx="30" cy="30" rx="10" ry="22"/><line x1="8" y1="30" x2="52" y2="30"/><line x1="30" y1="8" x2="30" y2="52"/></svg>` },
+    { num: '08', title: 'Punto de inspección', desc: 'Verificación física para garantizar cumplimiento normativo.', accent: 'red', icon:
+      `<svg viewBox="0 0 60 60" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><circle cx="24" cy="24" r="14"/><line x1="34" y1="34" x2="50" y2="50"/></svg>` },
+    { num: '09', title: 'Seguro de contenedor', desc: 'Protección integral durante todo el trayecto.', accent: 'navy', icon:
+      `<svg viewBox="0 0 60 60" fill="currentColor"><path d="M30 6 L50 14 V30 C50 42 41 50 30 54 C19 50 10 42 10 30 V14 Z"/></svg>` },
+  ];
+  const sg = document.getElementById('services-grid');
+  if (sg) {
+    sg.innerHTML = services.map((s, i) => {
+      const accentClr = s.accent === 'red' ? 'var(--red)' : 'var(--navy)';
+      return `
+      <div class="svc-card" style="
+        --svc-delay: ${600 + i * 90}ms;
+        transition-delay: ${600 + i * 90}ms;
+        background: var(--soft);
+        padding: 28px 32px;
+        display: flex; flex-direction: column;
+        gap: 16px;
+        position: relative; overflow: hidden;
+        min-height: 0;
+      ">
+        <div style="position: absolute; top: 0; left: 0; right: 0; height: 5px; background: ${accentClr};"></div>
+        <div style="display: flex; align-items: center; gap: 18px; margin-top: 6px;">
+          <div style="width: 52px; height: 52px; color: ${accentClr}; flex-shrink: 0; display: flex; align-items: center; justify-content: center;">
+            <div style="width: 100%; height: 100%;">${s.icon}</div>
+          </div>
+          <div style="font-size: 26px; font-weight: 800; letter-spacing: 0.01em; line-height: 1.05; color: var(--navy); text-transform: uppercase;">${s.title}</div>
+        </div>
+        <div style="font-size: 15px; line-height: 1.45; color: var(--muted);">${s.desc}</div>
+      </div>
+    `;}).join('');
+  }
+
+  // ============== RESPONSIVE SCALING ==============
+  const SLIDE_W = 1920, SLIDE_H = 1080;
+  const wrap = document.getElementById('slidesWrap');
+  const stage = document.getElementById('stage');
+  const rotatePrompt = document.getElementById('rotatePrompt');
+
+  function fit() {
+    const vw = window.innerWidth, vh = window.innerHeight;
+    // Determine portrait phone (small device AND portrait)
+    const isPortraitMobile = vw < vh && vw < 900;
+    rotatePrompt.classList.toggle('visible', isPortraitMobile);
+    if (isPortraitMobile) return;
+
+    const scale = Math.min(vw / SLIDE_W, vh / SLIDE_H);
+    wrap.style.transform = `scale(${scale})`;
+  }
+  fit();
+  window.addEventListener('resize', fit, { passive: true });
+  window.addEventListener('orientationchange', () => setTimeout(fit, 80));
+
+  // ============== SLIDE STATE MACHINE ==============
+  const slides = Array.from(document.querySelectorAll('.slide'));
+  const TOTAL = slides.length;
+  let current = 0;
+  let locked = false;
+  const TRANSITION_MS = 950; // exit overlap window
+  const counterNum = document.getElementById('counterNum');
+  const scrollHint = document.getElementById('scrollHint');
+
+  // Build nav dots
+  const navDots = document.getElementById('navDots');
+  slides.forEach((s, i) => {
+    const b = document.createElement('button');
+    b.className = 'nav-dot';
+    b.setAttribute('aria-label', s.dataset.label);
+    b.innerHTML = `<span class="label">${String(i+1).padStart(2,'0')} · ${s.dataset.label}</span>`;
+    b.addEventListener('click', () => goTo(i));
+    navDots.appendChild(b);
+  });
+  const dotEls = Array.from(navDots.children);
+
+  function setActiveDot(i) {
+    dotEls.forEach((d, idx) => d.classList.toggle('active', idx === i));
+  }
+
+  function playSlide(slide) {
+    // ensure clean state first
+    slide.classList.remove('leaving');
+    slide.classList.add('entering');
+    // Force reflow
+    void slide.offsetWidth;
+    slide.classList.add('active');
+    // tiny delay so the mask animation starts
+    requestAnimationFrame(() => {
+      slide.classList.remove('entering');
+      // Now play: set per-element delays then trigger
+      const els = slide.querySelectorAll('[data-anim]');
+      els.forEach((el) => {
+        const d = el.getAttribute('data-delay') || '0';
+        el.style.setProperty('--d', d + 'ms');
+        el.classList.remove('in');
+      });
+      // Force reflow before adding play class
+      void slide.offsetWidth;
+      slide.classList.add('play');
+      requestAnimationFrame(() => {
+        els.forEach((el) => el.classList.add('in'));
+      });
+    });
+  }
+
+  function exitSlide(slide) {
+    slide.classList.add('leaving');
+    slide.classList.remove('play');
+    const els = slide.querySelectorAll('[data-anim]');
+    els.forEach((el, i) => {
+      // stagger out in reverse
+      el.style.setProperty('--d', (i * 18) + 'ms');
+      el.classList.remove('in');
+    });
+    // remove active after transition
+    setTimeout(() => {
+      slide.classList.remove('active', 'leaving');
+    }, 750);
+  }
+
+  function goTo(idx) {
+    if (idx === current || locked) return;
+    if (idx < 0 || idx >= TOTAL) return;
+    locked = true;
+    stage.classList.add('locking');
+    scrollHint.classList.add('hide');
+
+    const out = slides[current];
+    const next = slides[idx];
+    exitSlide(out);
+    // Slight overlap: start next mid-exit for smoother liquid handoff
+    setTimeout(() => playSlide(next), 350);
+    current = idx;
+    counterNum.textContent = String(idx + 1).padStart(2, '0');
+    setActiveDot(idx);
+
+    setTimeout(() => {
+      locked = false;
+      stage.classList.remove('locking');
+    }, TRANSITION_MS + 600);
+  }
+
+  // ============== SCROLL / SWIPE / KEYS ==============
+  let wheelAccum = 0;
+  const WHEEL_THRESHOLD = 80;
+  let wheelTimer = null;
+
+  window.addEventListener('wheel', (e) => {
+    e.preventDefault();
+    if (locked) return;
+    wheelAccum += e.deltaY;
+    if (wheelTimer) clearTimeout(wheelTimer);
+    wheelTimer = setTimeout(() => { wheelAccum = 0; }, 200);
+    if (Math.abs(wheelAccum) > WHEEL_THRESHOLD) {
+      const dir = wheelAccum > 0 ? 1 : -1;
+      wheelAccum = 0;
+      goTo(Math.max(0, Math.min(TOTAL - 1, current + dir)));
+    }
+  }, { passive: false });
+
+  // Touch / swipe
+  let touchY = null, touchX = null;
+  window.addEventListener('touchstart', (e) => {
+    touchY = e.touches[0].clientY;
+    touchX = e.touches[0].clientX;
+  }, { passive: true });
+  window.addEventListener('touchend', (e) => {
+    if (touchY == null) return;
+    const dy = (e.changedTouches[0].clientY - touchY);
+    const dx = (e.changedTouches[0].clientX - touchX);
+    if (Math.abs(dy) > 50 || Math.abs(dx) > 60) {
+      // dominant axis
+      let dir = 0;
+      if (Math.abs(dy) > Math.abs(dx)) dir = dy < 0 ? 1 : -1;
+      else dir = dx < 0 ? 1 : -1;
+      goTo(Math.max(0, Math.min(TOTAL - 1, current + dir)));
+    }
+    touchY = touchX = null;
+  }, { passive: true });
+
+  // Keys
+  window.addEventListener('keydown', (e) => {
+    if (locked) return;
+    if (e.key === 'ArrowDown' || e.key === 'ArrowRight' || e.key === ' ' || e.key === 'PageDown') {
+      e.preventDefault();
+      goTo(Math.min(TOTAL - 1, current + 1));
+    } else if (e.key === 'ArrowUp' || e.key === 'ArrowLeft' || e.key === 'PageUp') {
+      e.preventDefault();
+      goTo(Math.max(0, current - 1));
+    } else if (e.key === 'Home') {
+      goTo(0);
+    } else if (e.key === 'End') {
+      goTo(TOTAL - 1);
+    }
+  });
+
+  // ============== INIT ==============
+  setActiveDot(0);
+  // Slight delay so fonts load
+  setTimeout(() => {
+    playSlide(slides[0]);
+  }, 200);
+
+  // Hide hint after a few interactions
+  setTimeout(() => { scrollHint.classList.add('hide'); }, 8000);
+</script>
+
+</body>
+</html>
