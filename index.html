@@ -448,6 +448,12 @@
     width: 4px; height: 4px; background: var(--red);
     border-radius: 50%;
   }
+  /* Hide HUD on small/landscape mobile — nothing useful, just clutter */
+  @media (max-width: 1000px), (max-height: 600px) {
+    .slide-counter { display: none; }
+    .nav-dots { display: none; }
+    .scroll-hint { bottom: 12px; padding: 8px 16px; font-size: 9px; }
+  }
 </style>
 </head>
 <body>
@@ -969,7 +975,7 @@
             <svg width="38" height="38" viewBox="0 0 40 40" fill="none" stroke="currentColor" stroke-width="1.6" style="color: var(--red);"><rect x="4" y="10" width="32" height="22"/><path d="M4 12 L20 24 L36 12"/></svg>
             <div>
               <div style="font-family: 'JetBrains Mono', monospace; font-size: 12px; letter-spacing: 0.22em; text-transform: uppercase; color: var(--muted);">Correo</div>
-              <div style="font-size: 25px; font-weight: 700; color: var(--navy); margin-top: 8px; line-height: 1.2; word-break: break-all;">Comercializacion@cieagenciaaduanal.com</div>
+              <div style="font-size: 25px; font-weight: 700; color: var(--navy); margin-top: 8px; line-height: 1.2; word-break: break-all;"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="bdfed2d0d8cfded4dcd1d4c7dcded4d2d3fdded4d8dcdad8d3ded4dcdcd9c8dcd3dcd193ded2d0">[email&#160;protected]</a></div>
             </div>
           </div>
 
@@ -1089,7 +1095,7 @@
   }
 </style>
 
-<script>
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
   // ============== SERVICES GRID (preserved from original) ==============
   const services = [
     { num: '01', title: 'Importación', desc: 'Despachos ágiles con ejecutivos especializados.', accent: 'navy', icon:
