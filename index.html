@@ -61,24 +61,28 @@
   .stage::before { inset: 0; }
 
   .slides-wrap {
-    position: relative;
+    position: absolute;
+    left: 50%; top: 50%;
     width: 1920px; height: 1080px;
     transform-origin: center center;
     will-change: transform;
+    background: var(--white);
+    overflow: hidden;
+    perspective: 1800px;
+    transform-style: preserve-3d;
   }
 
   /* ============== SLIDE BASE ============== */
   .slide {
     position: absolute; inset: 0;
     width: 1920px; height: 1080px;
-    background: var(--white);
+    background: transparent; /* wrap is white — lets slides overlap during transition */
     color: var(--navy-ink);
     overflow: hidden;
     font-family: 'Manrope', system-ui, sans-serif;
     opacity: 0;
     pointer-events: none;
     visibility: hidden;
-    box-shadow: 0 30px 80px rgba(0,0,0,0.45), 0 0 0 1px rgba(255,255,255,0.04);
   }
   .slide.active {
     opacity: 1;
@@ -86,28 +90,17 @@
     pointer-events: auto;
     z-index: 2;
   }
+  /* While leaving, outgoing slide stays VISIBLE on top until elements drain out */
+  .slide.leaving {
+    opacity: 1;
+    visibility: visible;
+    z-index: 3;
+    pointer-events: none;
+  }
   .slide.prev, .slide.next { z-index: 1; }
 
-  /* Slide reveal mask (liquid wipe of the whole slide) */
-  .slide-mask {
-    position: absolute; inset: 0; z-index: 50;
-    pointer-events: none;
-    background: linear-gradient(120deg, var(--navy) 0%, var(--navy-ink) 45%, var(--red) 100%);
-    clip-path: circle(0% at 50% 50%);
-    transition: clip-path 900ms cubic-bezier(.86,0,.07,1);
-  }
-  .slide.entering .slide-mask {
-    clip-path: circle(150% at 50% 50%);
-    transition: clip-path 0ms;
-  }
-  .slide.active .slide-mask {
-    clip-path: circle(0% at 50% 50%);
-    transition: clip-path 1000ms cubic-bezier(.86,0,.07,1);
-  }
-  .slide.leaving .slide-mask {
-    clip-path: circle(150% at 50% 50%);
-    transition: clip-path 700ms cubic-bezier(.86,0,.07,1);
-  }
+  /* Slide reveal mask removed — element-level liquid motion handles transitions */
+  .slide-mask { display: none !important; }
 
   /* ============== CHROME ============== */
   .accent-bar {
@@ -222,20 +215,76 @@
     transform: scaleX(1);
   }
 
-  /* Out state: liquid drain on slide leaving */
+  /* Out state: liquid drain on slide leaving — individual elements stagger out */
   .slide.leaving [data-anim] {
     transition:
       transform var(--liq-out) var(--liq-ease-out) var(--d),
       opacity   var(--liq-out) var(--liq-ease-out) var(--d),
-      filter    var(--liq-out) var(--liq-ease-out) var(--d);
+      filter    var(--liq-out) var(--liq-ease-out) var(--d),
+      clip-path var(--liq-out) var(--liq-ease-out) var(--d);
     opacity: 0;
     transform: translate3d(0, -40px, 0) scale(.96);
     filter: blur(14px);
+    clip-path: inset(0 0 0 0); /* keep wipe-clips OPEN while leaving — prevents snap */
   }
   .slide.leaving [data-anim="liquid-bar"],
   .slide.leaving [data-anim="liquid-bar-r"] {
     transform: scaleX(0);
     opacity: 0.5;
+  }
+
+  /* ============== TITLE (liquid-pour) EXIT — 3D zoom-blur =============== */
+  /* Big titles fly back in Z + blur out + drift in scroll direction — inspired by
+     the scroll-driven zoom effect from codepen.io/argyleink/pen/ZEdrzJZ */
+  .slide.leaving.exit-down [data-anim="liquid-pour"],
+  .slide.leaving.exit-down [data-anim="liquid-pour-r"],
+  .slide.leaving.exit-down [data-anim="liquid-reveal"] {
+    transform: translate3d(0, -180px, -800px) scale(.7);
+    filter: blur(22px);
+    opacity: 0;
+  }
+  .slide.leaving.exit-up [data-anim="liquid-pour"],
+  .slide.leaving.exit-up [data-anim="liquid-pour-r"],
+  .slide.leaving.exit-up [data-anim="liquid-reveal"] {
+    transform: translate3d(0, 180px, -800px) scale(.7);
+    filter: blur(22px);
+    opacity: 0;
+  }
+  /* Headline/lede plain liquid-up text — softer drift, no Z so they don't fight titles */
+  .slide.leaving.exit-down [data-anim="liquid-up"] {
+    transform: translate3d(0, -90px, 0) scale(.95);
+    filter: blur(16px);
+  }
+  .slide.leaving.exit-up [data-anim="liquid-up"] {
+    transform: translate3d(0, 90px, 0) scale(.95);
+    filter: blur(16px);
+  }
+  /* Blobs (cards) — collapse with slight rotation */
+  .slide.leaving.exit-down [data-anim="liquid-blob"] {
+    transform: scale(.55) translateY(-50px) rotate(5deg);
+    filter: blur(18px);
+  }
+  .slide.leaving.exit-up [data-anim="liquid-blob"] {
+    transform: scale(.55) translateY(50px) rotate(-5deg);
+    filter: blur(18px);
+  }
+  /* Drip cards (map markers) */
+  .slide.leaving.exit-down [data-anim="liquid-drip"] {
+    transform: translate3d(0, 200px, 0) scaleY(.35);
+    transform-origin: top center;
+    filter: blur(14px);
+  }
+  .slide.leaving.exit-up [data-anim="liquid-drip"] {
+    transform: translate3d(0, -200px, 0) scaleY(.35);
+    filter: blur(14px);
+  }
+  /* Side-aware brand chrome (logo, meta) — return to the side they came from */
+  .slide.leaving [data-anim="liquid-left"]  { transform: translate3d(-150px, 0, 0) scale(.94); }
+  .slide.leaving [data-anim="liquid-right"] { transform: translate3d(150px, 0, 0) scale(.94); }
+  /* Pop (logos, full-bleed imagery) — zoom out into the distance */
+  .slide.leaving [data-anim="liquid-pop"] {
+    transform: scale(.25) translateZ(-1200px);
+    filter: blur(24px);
   }
 
   /* When slide isn't playing, reset to initial */
@@ -454,6 +503,23 @@
     .nav-dots { display: none; }
     .scroll-hint { bottom: 12px; padding: 8px 16px; font-size: 9px; }
   }
+
+  /* ============== SHIP WATER CANVAS (slide 04) ============== */
+  #shipWater {
+    position: absolute;
+    left: 0; right: 0;
+    bottom: 90px;     /* sit above chrome-bottom, aligned to ship waterline */
+    width: 100%;
+    height: 200px;
+    pointer-events: none;
+    z-index: 1;
+    opacity: 0;
+    transition: opacity 800ms ease 1200ms;
+  }
+  .slide[data-num="04"].play #shipWater { opacity: 1; }
+  .slide[data-num="04"].leaving #shipWater { opacity: 0; transition: opacity 400ms ease; }
+  /* Hide static SVG waves once canvas water takes over */
+  .slide[data-num="04"] .ship-waves { display: none; }
 </style>
 </head>
 <body>
@@ -647,6 +713,9 @@
           Cada sector tiene su normatividad, su estacionalidad y sus aduanas — las dominamos.
         </div>
       </div>
+
+      <!-- Ship water animation canvas (codepen-inspired liquid wave) -->
+      <canvas id="shipWater" width="1920" height="200"></canvas>
 
       <!-- Ship -->
       <div id="ship-stage" style="position: absolute; top: 360px; left: 0; right: 0; bottom: 90px; overflow: visible;">
@@ -948,10 +1017,10 @@
       <div style="position: absolute; inset: 170px 100px 130px 100px; display: grid; grid-template-columns: 1.05fr 0.95fr; gap: 86px; align-items: center;">
         <div style="position: relative; padding: 34px 0 42px 0;">
           <div class="eyebrow" data-anim="liquid-pour" data-delay="300">Gracias por su atención</div>
-          <h2 class="title" style="font-size: 108px; line-height: 0.98; max-width: 1000px;">
-            <span data-anim="liquid-pour" data-delay="500" style="display:inline-block;">Sigamos moviendo</span><br/>
-            <span data-anim="liquid-pour" data-delay="700" style="display:inline-block;">su operación con</span><br/>
-            <span data-anim="liquid-pour" data-delay="900" style="display:inline-block; font-family: 'Source Serif 4', serif; font-style: italic; font-weight: 500; color: var(--red);">precisión aduanal.</span>
+          <h2 class="title" style="font-size: 100px; line-height: 1; max-width: none;">
+            <span data-anim="liquid-pour" data-delay="450" style="display:block; white-space:nowrap;">Sigamos moviendo</span>
+            <span data-anim="liquid-pour" data-delay="600" style="display:block; white-space:nowrap;">su operación con</span>
+            <span data-anim="liquid-pour" data-delay="750" style="display:block; white-space:nowrap; font-family: 'Source Serif 4', serif; font-style: italic; font-weight: 500; color: var(--red);">precisión aduanal.</span>
           </h2>
           <div class="lede" data-anim="liquid-up" data-delay="1100" style="font-size: 28px; max-width: 900px; margin-top: 34px;">
             CIE integra experiencia, cobertura e infraestructura para acompañar sus operaciones de comercio exterior con claridad y seguimiento puntual.
@@ -963,23 +1032,23 @@
           </div>
         </div>
 
-        <div data-anim="liquid-right" data-delay="600" style="border-top: 3px solid var(--navy); border-bottom: 1px solid var(--line); padding: 42px 0 34px 0; display: flex; flex-direction: column; gap: 28px;">
-          <div data-anim="liquid-up" data-delay="800" style="display: flex; align-items: center; justify-content: space-between; gap: 48px; padding-bottom: 30px; border-bottom: 1px solid var(--line);">
+        <div data-anim="liquid-up" data-delay="600" style="border-top: 3px solid var(--navy); border-bottom: 1px solid var(--line); padding: 42px 0 34px 0; display: flex; flex-direction: column; gap: 28px;">
+          <div data-anim="liquid-right" data-delay="700" style="display: flex; align-items: center; justify-content: space-between; gap: 48px; padding-bottom: 30px; border-bottom: 1px solid var(--line);">
             <img src="assets/logo-cie-original.png" alt="CIE" style="width: 210px; height: auto;" onerror="this.style.display='none'" />
             <div style="font-family: 'Source Serif 4', serif; font-style: italic; font-weight: 500; font-size: 34px; line-height: 1.18; color: var(--red); text-align: right;">
               Su referencia en<br/>logística aduanal.
             </div>
           </div>
 
-          <div data-anim="liquid-up" data-delay="950" style="display: grid; grid-template-columns: 46px 1fr; gap: 24px; align-items: start;">
+          <div data-anim="liquid-right" data-delay="820" style="display: grid; grid-template-columns: 46px 1fr; gap: 24px; align-items: start;">
             <svg width="38" height="38" viewBox="0 0 40 40" fill="none" stroke="currentColor" stroke-width="1.6" style="color: var(--red);"><rect x="4" y="10" width="32" height="22"/><path d="M4 12 L20 24 L36 12"/></svg>
             <div>
               <div style="font-family: 'JetBrains Mono', monospace; font-size: 12px; letter-spacing: 0.22em; text-transform: uppercase; color: var(--muted);">Correo</div>
-              <div style="font-size: 25px; font-weight: 700; color: var(--navy); margin-top: 8px; line-height: 1.2; word-break: break-all;"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="bdfed2d0d8cfded4dcd1d4c7dcded4d2d3fdded4d8dcdad8d3ded4dcdcd9c8dcd3dcd193ded2d0">[email&#160;protected]</a></div>
+              <div style="font-size: 25px; font-weight: 700; color: var(--navy); margin-top: 8px; line-height: 1.2; word-break: break-all;">Comercializacion@cieagenciaaduanal.com</div>
             </div>
           </div>
 
-          <div data-anim="liquid-up" data-delay="1080" style="display: grid; grid-template-columns: 46px 1fr; gap: 24px; align-items: start;">
+          <div data-anim="liquid-right" data-delay="940" style="display: grid; grid-template-columns: 46px 1fr; gap: 24px; align-items: start;">
             <svg width="38" height="38" viewBox="0 0 40 40" fill="none" stroke="currentColor" stroke-width="1.6" style="color: var(--red);"><path d="M8 8 L16 8 L18 18 L14 22 C16 28 22 32 28 34 L32 30 L40 32 L40 38"/></svg>
             <div>
               <div style="font-family: 'JetBrains Mono', monospace; font-size: 12px; letter-spacing: 0.22em; text-transform: uppercase; color: var(--muted);">Teléfono</div>
@@ -987,7 +1056,7 @@
             </div>
           </div>
 
-          <div data-anim="liquid-up" data-delay="1210" style="display: grid; grid-template-columns: 46px 1fr; gap: 24px; align-items: start;">
+          <div data-anim="liquid-right" data-delay="1060" style="display: grid; grid-template-columns: 46px 1fr; gap: 24px; align-items: start;">
             <svg width="38" height="38" viewBox="0 0 40 40" fill="none" stroke="currentColor" stroke-width="1.6" style="color: var(--red);"><circle cx="20" cy="20" r="14"/><ellipse cx="20" cy="20" rx="6" ry="14"/><path d="M6 20 H34"/></svg>
             <div>
               <div style="font-family: 'JetBrains Mono', monospace; font-size: 12px; letter-spacing: 0.22em; text-transform: uppercase; color: var(--muted);">Sitio web</div>
@@ -995,7 +1064,7 @@
             </div>
           </div>
 
-          <div data-anim="liquid-up" data-delay="1340" style="display: grid; grid-template-columns: 46px 1fr; gap: 24px; align-items: start;">
+          <div data-anim="liquid-right" data-delay="1180" style="display: grid; grid-template-columns: 46px 1fr; gap: 24px; align-items: start;">
             <svg width="38" height="38" viewBox="0 0 40 40" fill="none" stroke="currentColor" stroke-width="1.6" style="color: var(--red);"><path d="M20 4 C12 4 6 10 6 18 C6 28 20 38 20 38 C20 38 34 28 34 18 C34 10 28 4 20 4 Z"/><circle cx="20" cy="18" r="5"/></svg>
             <div>
               <div style="font-family: 'JetBrains Mono', monospace; font-size: 12px; letter-spacing: 0.22em; text-transform: uppercase; color: var(--muted);">Oficina principal</div>
@@ -1095,7 +1164,7 @@
   }
 </style>
 
-<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+<script>
   // ============== SERVICES GRID (preserved from original) ==============
   const services = [
     { num: '01', title: 'Importación', desc: 'Despachos ágiles con ejecutivos especializados.', accent: 'navy', icon:
@@ -1158,7 +1227,7 @@
     if (isPortraitMobile) return;
 
     const scale = Math.min(vw / SLIDE_W, vh / SLIDE_H);
-    wrap.style.transform = `scale(${scale})`;
+    wrap.style.transform = `translate(-50%, -50%) scale(${scale})`;
   }
   fit();
   window.addEventListener('resize', fit, { passive: true });
@@ -1215,19 +1284,27 @@
     });
   }
 
-  function exitSlide(slide) {
-    slide.classList.add('leaving');
+  function exitSlide(slide, dir) {
     slide.classList.remove('play');
-    const els = slide.querySelectorAll('[data-anim]');
+    slide.classList.add('leaving');
+    slide.classList.add(dir === 'down' ? 'exit-down' : 'exit-up');
+    const els = Array.from(slide.querySelectorAll('[data-anim]'));
+    // Slower stagger — each element takes ~70ms more than the previous one,
+    // so first elements are already gone while later ones start drifting.
+    // Big titles (liquid-pour) get an extra +120ms hold so they're the LAST
+    // to leave — they zoom-blur back into Z space as the new slide rises.
     els.forEach((el, i) => {
-      // stagger out in reverse
-      el.style.setProperty('--d', (i * 18) + 'ms');
+      const kind = el.getAttribute('data-anim');
+      const baseDelay = i * 70;
+      const holdBonus = (kind === 'liquid-pour' || kind === 'liquid-pour-r') ? 180 : 0;
+      el.style.setProperty('--d', (baseDelay + holdBonus) + 'ms');
       el.classList.remove('in');
     });
-    // remove active after transition
+    const total = els.length * 70 + 900;
     setTimeout(() => {
-      slide.classList.remove('active', 'leaving');
-    }, 750);
+      slide.classList.remove('active', 'leaving', 'exit-down', 'exit-up');
+    }, total);
+    return total;
   }
 
   function goTo(idx) {
@@ -1237,29 +1314,44 @@
     stage.classList.add('locking');
     scrollHint.classList.add('hide');
 
+    const dir = idx > current ? 'down' : 'up';
     const out = slides[current];
     const next = slides[idx];
-    exitSlide(out);
-    // Slight overlap: start next mid-exit for smoother liquid handoff
-    setTimeout(() => playSlide(next), 350);
+
+    // 1. Start exit on current slide (slow staggered drain)
+    const exitTotal = exitSlide(out, dir);
+
+    // 2. After a short overlap delay, mount next slide and start entries.
+    //    The first new elements arrive while the LAST old ones are still leaving —
+    //    creating an interlaced relay between slides.
+    const OVERLAP = 450;
+    setTimeout(() => playSlide(next), OVERLAP);
+
     current = idx;
     counterNum.textContent = String(idx + 1).padStart(2, '0');
     setActiveDot(idx);
 
+    // Release lock once both exit AND enter sequences have finished
+    const enterTotal = 2000; // generous — covers longest delay + transition
+    const totalTransition = Math.max(exitTotal, OVERLAP + enterTotal);
     setTimeout(() => {
       locked = false;
       stage.classList.remove('locking');
-    }, TRANSITION_MS + 600);
+      cooldownUntil = performance.now() + 250; // ignore trackpad momentum
+    }, totalTransition);
   }
 
   // ============== SCROLL / SWIPE / KEYS ==============
   let wheelAccum = 0;
   const WHEEL_THRESHOLD = 80;
   let wheelTimer = null;
+  let cooldownUntil = 0;
 
   window.addEventListener('wheel', (e) => {
     e.preventDefault();
-    if (locked) return;
+    if (locked) { wheelAccum = 0; return; }
+    // Cooldown: ignore momentum scroll right after a transition
+    if (performance.now() < cooldownUntil) { wheelAccum = 0; return; }
     wheelAccum += e.deltaY;
     if (wheelTimer) clearTimeout(wheelTimer);
     wheelTimer = setTimeout(() => { wheelAccum = 0; }, 200);
@@ -1315,6 +1407,66 @@
 
   // Hide hint after a few interactions
   setTimeout(() => { scrollHint.classList.add('hide'); }, 8000);
+
+  // ============== SHIP WATER ANIMATION (slide 04) ==============
+  (() => {
+    const cv = document.getElementById('shipWater');
+    if (!cv) return;
+    const cx = cv.getContext('2d');
+    const W = cv.width;   // 1920
+    const H = cv.height;  // 200
+    let c = 0;
+    const BLUE = '#34A7C1';      // ocean blue (contrasts with navy hull)
+    const BLUE_DEEP = '#1F8AAA';
+    const FOAM = 'rgba(255,255,255,0.55)';
+
+    function draw() {
+      cx.clearRect(0, 0, W, H);
+
+      // Gradient water body (ocean blue, distinct from navy hull)
+      const grad = cx.createLinearGradient(0, 0, 0, H);
+      grad.addColorStop(0, BLUE);
+      grad.addColorStop(1, BLUE_DEEP);
+      cx.fillStyle = grad;
+
+      const baseY = 50;
+      const t = c / 50;
+      cx.beginPath();
+      cx.moveTo(W, baseY);
+      cx.lineTo(W, H);
+      cx.lineTo(0, H);
+      cx.lineTo(0, baseY);
+      const temp = 16 * Math.sin(t);
+      cx.bezierCurveTo(W / 3, baseY - temp, (2 * W) / 3, baseY + temp, W, baseY);
+      cx.fill();
+
+      // Secondary deeper-blue wave for depth (sits just below primary surface)
+      cx.fillStyle = 'rgba(31,138,170,0.55)';
+      cx.beginPath();
+      const baseY2 = 72;
+      const temp2 = 12 * Math.sin(t + 1.3);
+      cx.moveTo(0, baseY2);
+      cx.bezierCurveTo(W / 3, baseY2 - temp2, (2 * W) / 3, baseY2 + temp2, W, baseY2);
+      cx.lineTo(W, baseY2 + 12);
+      cx.bezierCurveTo((2*W)/3, baseY2 + 12 + temp2, W/3, baseY2 + 12 - temp2, 0, baseY2 + 12);
+      cx.closePath();
+      cx.fill();
+
+      // Foam highlight along wave crest
+      cx.strokeStyle = FOAM;
+      cx.lineWidth = 1.6;
+      cx.beginPath();
+      cx.moveTo(0, baseY);
+      cx.bezierCurveTo(W / 3, baseY - temp, (2 * W) / 3, baseY + temp, W, baseY);
+      cx.stroke();
+
+      // update
+      c++;
+      if (c >= 100 * Math.PI) c = 0;
+      requestAnimationFrame(draw);
+    }
+    draw();
+  })();
 </script>
 
 </body>
